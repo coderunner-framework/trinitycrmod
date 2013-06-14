@@ -1,0 +1,1 @@
+require 'trinitycrmod/trinity'
