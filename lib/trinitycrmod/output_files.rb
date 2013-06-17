@@ -9,6 +9,9 @@ class CodeRunner
       def info_outfile
         TextDataTools::Named::DataFile.new(@directory + '/' + @run_name + '.info', ':')
       end
+      def nt_outfile
+        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.nt', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:)/)
+      end
       def time_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.time', true, /\S+/, /\w+/)
       end

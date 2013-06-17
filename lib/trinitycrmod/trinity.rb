@@ -16,6 +16,7 @@ class CodeRunner
 		# Use the Run::FortranNamelist tools to process the variable database
 		setup_namelists(@code_module_folder)
 		require 'trinitycrmod/output_files'
+		require 'trinitycrmod/graphs'
 
 		################################################
 		# Quantities that are read or determined by CodeRunner

@@ -27,7 +27,7 @@ end
 class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
   def setup
     #@runner = CodeRunner.fetch_runner(Y: 'test/ifspppl_results', C: 'trinity', X: '/dev/null')
-		Dir.chdir('test/ifspppl_results/v'){system "tar -xzf id_1.tgz"}
+		Dir.chdir('test/ifspppl_results/v'){str = "tar -xzf id_1.tgz";system str}
     @runner = CodeRunner.fetch_runner(Y: 'test/ifspppl_results', C: 'trinity', X: ENV['HOME'] + '/Code/trinity/trunk/trinity', A: true)
     #@runner.run_class.make_new_defaults_file("rake_test", "test/ifspppl/test.trin")
     #FileUtils.mv('rake_test_defaults.rb', @runner.run_class.rcp.user_defaults_location)
@@ -37,10 +37,16 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
     CodeRunner.status(Y: 'test/ifspppl_results')
     assert_equal(@runner.run_list.size, 1)
     assert_equal(@runner.run_list[1].fusionQ, 0.075658439797815016)
+    FileUtils.rm('test/ifspppl_results/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
   end
+	def test_graphs
+	  kit = @runner.run_list[1].graphkit('ion_temp_prof', {t_index: 2})
+		#kit.gnuplot
+		assert_equal(kit.data[0].class, GraphKit::DataKit)
+		assert_equal(kit.data[0].x.data[0], 0.05)
+	end
   def teardown
     FileUtils.rm('test/ifspppl_results/.code_runner_script_defaults.rb')
-    FileUtils.rm('test/ifspppl_results/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
     FileUtils.rm_r('test/ifspppl_results/v/id_1/')
   end
 end

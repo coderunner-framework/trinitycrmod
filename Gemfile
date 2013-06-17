@@ -2,7 +2,7 @@ source "http://rubygems.org"
 # Add dependencies required to use your gem here.
 # Example:
    gem "coderunner", ">= 0.11.0"
-   gem "text-data-tools", ">= 1.1.1"
+   gem "text-data-tools", ">= 1.1.3"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
