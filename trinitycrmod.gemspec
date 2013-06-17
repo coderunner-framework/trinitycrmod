@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "trinitycrmod"
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock"]
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "lib/trinitycrmod.rb",
     "lib/trinitycrmod/deleted_variables.rb",
+    "lib/trinitycrmod/graphs.rb",
     "lib/trinitycrmod/namelists.rb",
     "lib/trinitycrmod/output_files.rb",
     "lib/trinitycrmod/trinity.rb",
@@ -33,7 +34,8 @@ Gem::Specification.new do |s|
     "test/helper.rb",
     "test/ifspppl/test.trin",
     "test/ifspppl_results/v/id_1.tgz",
-    "test/test_trinitycrmod.rb"
+    "test/test_trinitycrmod.rb",
+    "trinitycrmod.gemspec"
   ]
   s.homepage = "http://github.com/edmundhighcock/trinitycrmod"
   s.licenses = ["GPLv3"]
@@ -46,14 +48,14 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<coderunner>, [">= 0.11.0"])
-      s.add_runtime_dependency(%q<text-data-tools>, [">= 1.1.1"])
+      s.add_runtime_dependency(%q<text-data-tools>, [">= 1.1.3"])
       s.add_development_dependency(%q<shoulda>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, ["~> 3.12"])
       s.add_development_dependency(%q<bundler>, ["> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 1.8.4"])
     else
       s.add_dependency(%q<coderunner>, [">= 0.11.0"])
-      s.add_dependency(%q<text-data-tools>, [">= 1.1.1"])
+      s.add_dependency(%q<text-data-tools>, [">= 1.1.3"])
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<rdoc>, ["~> 3.12"])
       s.add_dependency(%q<bundler>, ["> 1.0.0"])
@@ -61,7 +63,7 @@ Gem::Specification.new do |s|
     end
   else
     s.add_dependency(%q<coderunner>, [">= 0.11.0"])
-    s.add_dependency(%q<text-data-tools>, [">= 1.1.1"])
+    s.add_dependency(%q<text-data-tools>, [">= 1.1.3"])
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<rdoc>, ["~> 3.12"])
     s.add_dependency(%q<bundler>, ["> 1.0.0"])
