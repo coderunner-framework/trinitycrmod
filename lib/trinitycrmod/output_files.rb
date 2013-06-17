@@ -6,12 +6,13 @@ class CodeRunner
     #  by defining a TextDataFile  for every text  output file. See the documentation
     #  for TextDataTools  for more information.
     module OutputFiles
-      def info_file
-        TextDataFile.new(@directory + '/' + @run_name + '.info')
+      def info_outfile
+        TextDataTools::Named::DataFile.new(@directory + '/' + @run_name + '.info', ':')
       end
-      def time_file
-        TextDataFile.new(@directory + '/' + @run_name + '.time', true, /\S+/, /\w+/)
+      def time_outfile
+        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.time', true, /\S+/, /\w+/)
       end
     end
+    include OutputFiles
   end
 end
