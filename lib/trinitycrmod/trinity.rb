@@ -100,7 +100,7 @@ class CodeRunner
 				get_global_results 
 			end
 			#p ['fusionQ is ', fusionQ]
-			@percent_complete = completed_timesteps / ntstep * 100.0
+			@percent_complete = completed_timesteps.to_f / ntstep.to_f * 100.0
 		end
 
 		def get_status

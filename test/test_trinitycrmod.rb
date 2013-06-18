@@ -44,6 +44,11 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
 		#kit.gnuplot
 		assert_equal(kit.data[0].class, GraphKit::DataKit)
 		assert_equal(kit.data[0].x.data[0], 0.05)
+	  kit = @runner.run_list[1].graphkit('ion_hflux_gb_prof', {t_index: 2})
+		#kit.gnuplot
+		assert_equal(kit.data[0].class, GraphKit::DataKit)
+		assert_equal(8,kit.data[0].y.data.size)
+		assert_equal(kit.data[0].y.data[0], 0.001944)
 	end
   def teardown
     FileUtils.rm('test/ifspppl_results/.code_runner_script_defaults.rb')
