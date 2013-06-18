@@ -100,7 +100,7 @@ class CodeRunner
 				get_global_results 
 			end
 			#p ['fusionQ is ', fusionQ]
-			@percent_complete = nil
+			@percent_complete = completed_timesteps / ntstep * 100.0
 		end
 
 		def get_status
@@ -123,7 +123,7 @@ class CodeRunner
 
 		def get_completed_timesteps
 			Dir.chdir(@directory) do
-				completed_timesteps = time_outfile.exists? ? 
+				@completed_timesteps = time_outfile.exists? ? 
 					time_outfile.get_1d_array_integer(/itstep/).max :
 					0
 			end

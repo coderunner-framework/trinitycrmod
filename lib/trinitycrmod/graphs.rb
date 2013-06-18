@@ -10,8 +10,11 @@ class CodeRunner::Trinity
 													y: {data: array[it].to_gslv, title: options[:title]||"", units: options[:units]||""}
 												 )
 		end
+		def ang_mom_prof_graphkit(options)
+			return nt_prof_graphkit(options.dup.absorb({header: /ang\s+mom/, title: 'Angular Momentum', units: ''}))
+		end
 		def ion_temp_prof_graphkit(options)
-			return nt_prof_graphkit(options.dup.absorb({header: /i\+ temp/}))
+			return nt_prof_graphkit(options.dup.absorb({header: /i\+ temp/, title: 'Ti', units: 'keV'}))
 		end
 	end
 
