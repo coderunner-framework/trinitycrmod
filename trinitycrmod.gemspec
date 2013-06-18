@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "trinitycrmod"
-  s.version = "0.2.0"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Edmund Highcock"]
-  s.date = "2013-06-17"
+  s.date = "2013-06-18"
   s.description = "This module allows Trinity, the Multiscale Gyrokinetic Turbulent Transport solver for Fusion Reactors, to harness the power of CodeRunner, a framework for the automated running and analysis of simulations."
   s.email = "edmundhighcock@sourceforge.net"
   s.extra_rdoc_files = [
