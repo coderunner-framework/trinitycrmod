@@ -2,17 +2,17 @@ class CodeRunner::Trinity
 	module TrinityGraphKits
 		# Graphs plotting quantities from the '.nt' file vs rho for a given t_index
 		def nt_prof_graphkit(options)
-			prof_graphkit(options.dup.absorb({outfile: nt_outfile}))
+			prof_graphkit(options.dup.absorb({outfile: :nt}))
 		end
 		# Graphs plotting quantities from the '.fluxes' file vs rho for a given t_index
 		def fluxes_prof_graphkit(options)
-			prof_graphkit(options.dup.absorb({outfile: fluxes_outfile, exclude_perturbed_fluxes: true}))
+			prof_graphkit(options.dup.absorb({outfile: :fluxes, exclude_perturbed_fluxes: true}))
 		end
 		def prof_graphkit(options)
 			raise "Please specify t_index" unless options[:t_index]
 			it = options[:t_index] - 1
-			array = options[:outfile].get_2d_array_float(options[:header], /1.*time/)[it]
-			rho_array = options[:outfile].get_2d_array_float(/2.*radius/, /1.*time/)[it]
+			array = get_2d_array_float(options[:outfile], options[:header], /1.*time/)[it]
+			rho_array = get_2d_array_float(options[:outfile], /2.*radius/, /1.*time/)[it]
 			if options[:exclude_perturbed_fluxes]
 				s = array.size
 				array = array.slice(0...nrad-1)
