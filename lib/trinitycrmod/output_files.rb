@@ -30,6 +30,7 @@ class CodeRunner
 		#  TextDataTools::Column::DataFile for more information. Outfile is a symbol, use e.g. :nt 
 		#  for data from 'run_name.nt'.
 		def get_2d_array_float(outfile, column_header, index_header)
+			cache[:array_2d] = {} unless [:Complete, :Failed].include? @status
 			cache[:array_2d] ||= {}
 			cache[:array_2d][[outfile, column_header, index_header]] ||= send(outfile + :_outfile).get_2d_array_float(column_header, index_header)
 		end
