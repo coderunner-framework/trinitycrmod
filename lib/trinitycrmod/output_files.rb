@@ -13,15 +13,23 @@ class CodeRunner
       end
 			# File ending in '.fluxes': contains heat flux, momentum flux etc.
       def fluxes_outfile
-        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.fluxes', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:)/)
+        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.fluxes', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
       end
 			# File ending in '.nt': contains profiles: Ti, Te etc.
       def nt_outfile
-        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.nt', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:)/)
+        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.nt', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
       end
       def time_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.time', true, /\S+/, /\w+/)
       end
+			def view_outfiles
+				case ENV['EDITOR']
+				when /vim/i
+					"#{ENV['EDITOR']} -Rp #{info_outfile} #{nt_outfile} #{fluxes_outfile}"
+				else
+					"#{ENV['EDITOR']} #{info_outfile} #{nt_outfile} #{fluxes_outfile}"
+				end
+			end
     end
     include OutputFiles
 

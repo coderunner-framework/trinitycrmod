@@ -128,6 +128,7 @@ class CodeRunner
 					0
 			end
 		end
+	
 
 		def get_global_results
 			@fusionQ = info_outfile.get_variable_value('Q').to_f
