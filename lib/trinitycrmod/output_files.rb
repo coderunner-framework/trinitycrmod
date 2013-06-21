@@ -25,9 +25,9 @@ class CodeRunner
 			def view_outfiles
 				case ENV['EDITOR']
 				when /vim/i
-					"#{ENV['EDITOR']} -Rp #{info_outfile} #{nt_outfile} #{fluxes_outfile}"
+					system "#{ENV['EDITOR']} -Rp '+tabdo set nu|set nowrap'  #{info_outfile} #{nt_outfile} #{fluxes_outfile}"
 				else
-					"#{ENV['EDITOR']} #{info_outfile} #{nt_outfile} #{fluxes_outfile}"
+					system "#{ENV['EDITOR']} #{info_outfile} #{nt_outfile} #{fluxes_outfile}"
 				end
 			end
     end
