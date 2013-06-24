@@ -15,8 +15,17 @@ class CodeRunner::Trinity
 		def prof_graphkit(options)
 			raise "Please specify t_index" unless options[:t_index]
 			it = options[:t_index] - 1
-			array = get_2d_array_float(options[:outfile], options[:header], /1.*time/)[it]
-			rho_array = get_2d_array_float(options[:outfile], /2.*radius/, /1.*time/)[it]
+			if ta  = options[:time_average]
+				if ta < 0
+					t_indices = (it+ta..it).to_a
+				else
+					t_indices = (it..it+ta).to_a
+				end
+			else
+				t_indices = [it]
+			end
+			array = t_indices.map{|i| get_2d_array_float(options[:outfile], options[:header], /1.*time/)[i].to_gslv}.mean.to_a
+			rho_array = t_indices.map{|i| get_2d_array_float(options[:outfile], /2.*radius/, /1.*time/)[i].to_gslv}.mean.to_a
 			if options[:exclude_perturbed_fluxes]
 				s = array.size
 				array = array.slice(0...nrad-1)
@@ -26,12 +35,25 @@ class CodeRunner::Trinity
 			kit = GraphKit.autocreate(x: {data: rho_array.to_gslv, title: 'rho', units: ''},
 													y: {data: array.to_gslv, title: options[:title]||"", units: options[:units]||""}
 												 )
-			kit.data[0].title += " at time = #{list(:t)[it+1]} s"
+			kit.data[0].title += " at time = #{list(:t)[it+1]} s for id #{id}"
+			kit.data[0].gp.with = 'lp'
 			kit
 		end
 		# Graph of Qi in gyroBohm units against rho for a given t_index
 		def ion_hflux_gb_prof_graphkit(options)
 			fluxes_prof_graphkit(options.absorb({header: /Qi.*\(GB/, title: 'Ion Heat Flux', units: 'Q_gB'}))
+		end
+		# Graph of Qi in MW against rho for a given t_index
+		def ion_hflux_prof_graphkit(options)
+			fluxes_prof_graphkit(options.absorb({header: /Qi.*\(MW/, title: 'Ion Heat Flux', units: 'MW'}))
+		end
+		# Graph of Qe in gyroBohm units against rho for a given t_index
+		def eln_hflux_gb_prof_graphkit(options)
+			fluxes_prof_graphkit(options.absorb({header: /Qe.*\(GB/, title: 'Electron Heat Flux', units: 'Q_gB'}))
+		end
+		# Graph of Qe in MW against rho for a given t_index
+		def eln_hflux_prof_graphkit(options)
+			fluxes_prof_graphkit(options.absorb({header: /Qe.*\(MW/, title: 'Electron Heat Flux', units: 'MW'}))
 		end
 		# Graph of toroidal angular momentum flux in gyroBohm units against rho for a given t_index
 		def lflux_gb_prof_graphkit(options)
@@ -45,18 +67,22 @@ class CodeRunner::Trinity
 		def ion_temp_prof_graphkit(options)
 			return nt_prof_graphkit(options.absorb({header: /i\+ temp/, title: 'Ti', units: 'keV'}))
 		end
+		# Graph of Te against rho for a given t_index
+		def eln_temp_prof_graphkit(options)
+			return nt_prof_graphkit(options.absorb({header: /e\- temp/, title: 'Te', units: 'keV'}))
+		end
 
 		# Graph of ion power integrated from the magnetic axis to rho vs rho
 		def ion_pwr_prof_graphkit(options)
 			return pbalance_prof_graphkit(options.absorb({header: /i\+ pwr/, title: 'Integrated ion power', units: 'MW'}))
 		end
 		# Graph of electron power integrated from the magnetic axis to rho vs rho
-		def electron_pwr_prof_graphkit(options)
+		def eln_pwr_prof_graphkit(options)
 			return pbalance_prof_graphkit(options.absorb({header: /e\- pwr/, title: 'Integrated electron power', units: 'MW'}))
 		end
 		# Graph of ion power integrated from the magnetic axis to rho vs rho
-		def ion_pwr_prof_graphkit(options)
-			return pbalance_prof_graphkit(options.absorb({header: /i\+ pwr/, title: 'Integrated ion power', units: 'MW'}))
+		def torque_prof_graphkit(options)
+			return pbalance_prof_graphkit(options.absorb({header: /torque/, title: 'Integrated torque', units: 'Nm'}))
 		end
 	end
 

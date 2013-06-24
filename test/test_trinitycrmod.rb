@@ -57,6 +57,19 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
 		assert_equal(kit.data[0].y.data[0], 0.2412)
 		#kit.gnuplot
 	end
+
+	def test_average_graphs
+	  kit = @runner.run_list[1].graphkit('ion_hflux_gb_prof', {t_index: 2})
+		#kit.gnuplot
+		assert_equal(kit.data[0].class, GraphKit::DataKit)
+		assert_equal(kit.data[0].y.data[0], 0.001944)
+	  kit = @runner.run_list[1].graphkit('ion_hflux_gb_prof', {t_index: 1})
+		#kit.gnuplot
+		assert_equal(kit.data[0].class, GraphKit::DataKit)
+		assert_equal(kit.data[0].y.data[0], 0.001975)
+	  kit = @runner.run_list[1].graphkit('ion_hflux_gb_prof', {t_index: 2, time_average: -1})
+		assert_equal([0.001975, 0.001944].sum/2.0, kit.data[0].y.data[0])
+	end
   def teardown
     FileUtils.rm('test/ifspppl_results/.code_runner_script_defaults.rb')
     FileUtils.rm_r('test/ifspppl_results/v/id_1/')
