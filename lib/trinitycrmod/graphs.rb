@@ -6,7 +6,11 @@ class CodeRunner::Trinity
 		end
 		# Graphs plotting quantities from the '.fluxes' file vs rho for a given t_index
 		def fluxes_prof_graphkit(options)
-			prof_graphkit(options.dup.absorb({outfile: :fluxes, exclude_perturbed_fluxes: true}))
+			prof_graphkit(options.absorb({outfile: :fluxes, exclude_perturbed_fluxes: true}))
+		end
+		# Graphs plotting quantities from the '.pbalance' file vs rho for a given t_index
+		def pbalance_prof_graphkit(options)
+			prof_graphkit(options.absorb({outfile: :pbalance}))
 		end
 		def prof_graphkit(options)
 			raise "Please specify t_index" unless options[:t_index]
@@ -19,25 +23,40 @@ class CodeRunner::Trinity
 				rho_array = rho_array.slice(0...nrad-1)
 			end
 			#p rho_array, array
-			GraphKit.autocreate(x: {data: rho_array.to_gslv, title: 'rho', units: ''},
+			kit = GraphKit.autocreate(x: {data: rho_array.to_gslv, title: 'rho', units: ''},
 													y: {data: array.to_gslv, title: options[:title]||"", units: options[:units]||""}
 												 )
+			kit.data[0].title += " at time = #{list(:t)[it+1]} s"
+			kit
 		end
 		# Graph of Qi in gyroBohm units against rho for a given t_index
 		def ion_hflux_gb_prof_graphkit(options)
-			fluxes_prof_graphkit(options.dup.absorb({header: /Qi.*\(GB/, title: 'Ion Heat Flux', units: 'Q_gB'}))
+			fluxes_prof_graphkit(options.absorb({header: /Qi.*\(GB/, title: 'Ion Heat Flux', units: 'Q_gB'}))
 		end
 		# Graph of toroidal angular momentum flux in gyroBohm units against rho for a given t_index
 		def lflux_gb_prof_graphkit(options)
-			fluxes_prof_graphkit(options.dup.absorb({header: /Pi.*\(GB/, title: 'Toroidal Angular Momentum Flux', units: 'Pi_gB'}))
+			fluxes_prof_graphkit(options.absorb({header: /Pi.*\(GB/, title: 'Toroidal Angular Momentum Flux', units: 'Pi_gB'}))
 		end
 		# Graph of toroidal angular momentum against rho for a given t_index
 		def ang_mom_prof_graphkit(options)
-			return nt_prof_graphkit(options.dup.absorb({header: /ang\s+mom/, title: 'Angular Momentum', units: ''}))
+			return nt_prof_graphkit(options.absorb({header: /ang\s+mom/, title: 'Angular Momentum', units: ''}))
 		end
 		# Graph of Ti against rho for a given t_index
 		def ion_temp_prof_graphkit(options)
-			return nt_prof_graphkit(options.dup.absorb({header: /i\+ temp/, title: 'Ti', units: 'keV'}))
+			return nt_prof_graphkit(options.absorb({header: /i\+ temp/, title: 'Ti', units: 'keV'}))
+		end
+
+		# Graph of ion power integrated from the magnetic axis to rho vs rho
+		def ion_pwr_prof_graphkit(options)
+			return pbalance_prof_graphkit(options.absorb({header: /i\+ pwr/, title: 'Integrated ion power', units: 'MW'}))
+		end
+		# Graph of electron power integrated from the magnetic axis to rho vs rho
+		def electron_pwr_prof_graphkit(options)
+			return pbalance_prof_graphkit(options.absorb({header: /e\- pwr/, title: 'Integrated electron power', units: 'MW'}))
+		end
+		# Graph of ion power integrated from the magnetic axis to rho vs rho
+		def ion_pwr_prof_graphkit(options)
+			return pbalance_prof_graphkit(options.absorb({header: /i\+ pwr/, title: 'Integrated ion power', units: 'MW'}))
 		end
 	end
 

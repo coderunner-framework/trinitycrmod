@@ -37,6 +37,9 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
     CodeRunner.status(Y: 'test/ifspppl_results')
     assert_equal(@runner.run_list.size, 1)
     assert_equal(@runner.run_list[1].fusionQ, 0.075658439797815016)
+		list_t = @runner.run_list[1].list(:t)
+		assert_equal(201, list_t.size)
+		assert_equal(0.04375, list_t[10])
     FileUtils.rm('test/ifspppl_results/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
   end
 	def test_graphs
@@ -49,6 +52,10 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
 		assert_equal(kit.data[0].class, GraphKit::DataKit)
 		assert_equal(8,kit.data[0].y.data.size)
 		assert_equal(kit.data[0].y.data[0], 0.001944)
+	  kit = @runner.run_list[1].graphkit('ion_pwr_prof', {t_index: 2})
+		assert_equal(8,kit.data[0].y.data.size)
+		assert_equal(kit.data[0].y.data[0], 0.2412)
+		#kit.gnuplot
 	end
   def teardown
     FileUtils.rm('test/ifspppl_results/.code_runner_script_defaults.rb')

@@ -19,6 +19,10 @@ class CodeRunner
       def nt_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.nt', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
       end
+			# File ending in '.pbalance': contains fluxes and sources
+      def pbalance_outfile
+        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.pbalance', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
+      end
       def time_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.time', true, /\S+/, /\w+/)
       end
@@ -41,6 +45,20 @@ class CodeRunner
 			cache[:array_2d] = {} unless [:Complete, :Failed].include? @status
 			cache[:array_2d] ||= {}
 			cache[:array_2d][[outfile, column_header, index_header]] ||= send(outfile + :_outfile).get_2d_array_float(column_header, index_header)
+		end
+
+		# Returns a hash of the specified dimension in the form {index=> value} where index is 1-based
+		# Dimension can be:
+		# 	:t
+		# 	:rho
+		# 	:rho_cc
+		def list(var)
+			case var
+			when :t
+				hash  = {}
+				get_2d_array_float(:nt, /1:\s+time/, /1:\s+time/).map{|arr| arr[0]}.each_with_index{|t,i| hash[i+1] = t}
+				hash
+			end
 		end
   end
 end
