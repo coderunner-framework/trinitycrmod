@@ -17,6 +17,10 @@ class CodeRunner
 		setup_namelists(@code_module_folder)
 		require 'trinitycrmod/output_files'
 		require 'trinitycrmod/graphs'
+		require 'trinitycrmod/trinity_gs2'
+			
+		# Setup gs2 in case people are using it
+		CodeRunner.setup_run_class('gs2')
 
 		################################################
 		# Quantities that are read or determined by CodeRunner
@@ -72,7 +76,21 @@ class CodeRunner
 
 		#  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
 		def generate_input_file
+			  @run_name += "_t"
 				write_input_file
+				if @flux_option == "gs2"
+					for i in 0...(@nrad-1)
+						gs2run = gs2_run(:base).dup
+					  gs2_run(i).instance_variables.each do |var|
+						  gs2run.instance_variable_set(var, gs2_run(i).instance_variable_get(var))
+						end
+					  gs2run.run_name = @run_name + i.to_s
+						gs2run.nprocs = @nprocs
+						gs2run.directory = @directory
+						gs2run.relative_directory = @relative_directory
+					  gs2run.generate_input_file	
+					end
+				end
 		end
 
 		#  This command uses the infrastructure provided by Run::FortranNamelist, provided by CodeRunner itself.
@@ -189,7 +207,7 @@ class CodeRunner
 !
 !  	See http://coderunner.sourceforge.net
 !  
-!  Created on #{Time.now.to_s}
+!  Created #{Time.now.to_s}
 !      by CodeRunner version #{CodeRunner::CODE_RUNNER_VERSION.to_s}
 !
 !==============================================================================

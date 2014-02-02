@@ -16,12 +16,24 @@ class TestTrinitycrmodIFSPPPL < Test::Unit::TestCase
     FileUtils.mv('rake_test_defaults.rb', @runner.run_class.rcp.user_defaults_location)
     CodeRunner.submit(Y: 'test/ifspppl', T: true, D: 'rake_test')
 		base_hash = @runner.run_class.parse_input_file('test/ifspppl/test.trin')
-		test_hash = @runner.run_class.parse_input_file('test/ifspppl/v/id_1/v_id_1.trin')
+		test_hash = @runner.run_class.parse_input_file('test/ifspppl/v/id_1/v_id_1_t.trin')
 		assert_equal(base_hash, test_hash)
     FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_defaults.rb')
     FileUtils.rm('test/ifspppl/rake_test_defaults.rb')
 		FileUtils.rm_r('test/ifspppl/v')
   end
+end
+
+class TestTrinitycrmodGs2 < Test::Unit::TestCase
+	def setup
+		CodeRunner.setup_run_class('trinity')
+		Dir.chdir('test/gs2_42982'){
+			CodeRunner::Trinity.use_new_defaults_file_with_gs2('rake_test_gs2_42982', 'shot42982_jet.trin', 'shot42982_jet.in')
+		}
+	end
+	def test_submit
+		CodeRunner.submit(Y: 'test/gs2_42982', T: true, X: '/dev/null', n: '8')
+	end
 end
 
 class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
