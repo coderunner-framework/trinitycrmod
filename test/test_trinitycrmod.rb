@@ -30,6 +30,7 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		Dir.chdir('test/gs2_42982'){
 			CodeRunner::Trinity.use_new_defaults_file_with_gs2('rake_test_gs2_42982', 'shot42982_jet.trin', 'shot42982_jet.in')
 		}
+    @runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982', C: 'trinity', X: '/dev/null')
 	end
 	def test_submit
 		if ENV['TRINITY_EXEC']
@@ -37,6 +38,12 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		else
 			CodeRunner.submit(Y: 'test/gs2_42982', T: true, X: '/dev/null', n: '8')
 		end
+	end
+	def teardown 
+    FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_gs2_42982_defaults.rb')
+    FileUtils.rm('test/gs2_42982/rake_test_gs2_42982_defaults.rb')
+    FileUtils.rm('test/gs2_42982/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+		FileUtils.rm_r('test/gs2_42982/v/')
 	end
 end
 
