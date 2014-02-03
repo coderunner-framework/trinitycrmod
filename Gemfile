@@ -3,7 +3,7 @@ source "http://rubygems.org"
 # Example:
    gem "coderunner", ">= 0.13.32"
    gem "text-data-tools", ">= 1.1.3"
-	 gem "gs2crmod", ">=0.11.9"
+	 gem "gs2crmod", ">=0.11.10"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

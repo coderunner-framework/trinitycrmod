@@ -1,6 +1,11 @@
 # This file contains methods which allow Trinity to use GS2 as 
 # the flux solver
 
+#class NumRu::NetCDF
+	#def _dump_data
+		#Marshal.dump(nil)
+	#end
+#end
 class CodeRunner
 	class Trinity
 
@@ -13,9 +18,9 @@ class CodeRunner
 	    defaults_filename = "#{name}_defaults.rb"
 			tmp_filename = "#{name}_gs2tmp_defaults.rb"
 			central_defaults_filename = rcp.user_defaults_location + "/" + defaults_filename
-			#FileUtils.rm(name + '_defaults.rb') if FileTest.exist?(name + '_defaults.rb')
-			#FileUtils.rm(central_defaults_filename) if FileTest.exist?(central_defaults_filename)
-			#FileUtils.rm(tmp_filename) if FileTest.exist?(tmp_filename)
+			FileUtils.rm(name + '_defaults.rb') if FileTest.exist?(name + '_defaults.rb')
+			FileUtils.rm(central_defaults_filename) if FileTest.exist?(central_defaults_filename)
+			FileUtils.rm(tmp_filename) if FileTest.exist?(tmp_filename)
 			raise "Defaults file: #{central_defaults_filename} already exists" if FileTest.exist? central_defaults_filename
 
 

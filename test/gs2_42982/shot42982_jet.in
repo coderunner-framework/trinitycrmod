@@ -179,7 +179,7 @@
  write_gyx = F
  write_hrate = F
  write_correlation = T
- nwrite=     40
+ nwrite=     10
  navg=       40
  omegatinst = 500.0
  save_for_restart = .true.

@@ -56,7 +56,7 @@ class CodeRunner
 		@naming_pars = []
 
 		#  Any folders which are a number will contain the results from flux simulations.
-		@excluded_sub_folders = (1...1000).to_a.map{|i| i.to_s}
+		@excluded_sub_folders = (1...1000).to_a.map{|i| "flux_tube_" + i.to_s}
 
 		#  A hook which gets called when printing the standard run information to the screen using the status command.
 		def print_out_line
@@ -100,7 +100,15 @@ class CodeRunner
 				end
 				gs2run.run_name = @run_name + (i+1).to_s
 				gs2run.nprocs = @nprocs
-				Dir.chdir(gs2run.directory){gs2run.generate_input_file}
+				if i==0
+					block = Proc.new{ingen}
+				else
+					block = Proc.new{}
+				end
+				Dir.chdir(gs2run.directory){gs2run.generate_input_file(&block); gs2run.write_info}
+
+				### Hack the input file so that gs2 gets the location of 
+				# the restart dir correctly within trinity
 				if @subfolders and @subfolders.fortran_true?
 					infile = gs2run.directory + "/" + gs2run.run_name + ".in"
 					text = File.read(infile)
@@ -127,6 +135,54 @@ class CodeRunner
 		def parameter_transition
 		end
 
+		def generate_phantom_runs
+			#puts "HERE"
+			@phantom_runs = []
+			if @flux_option == "gs2"
+			#puts "HERE"
+				for i in 0...(@nrad-1)*2
+					phantom = gs2_run(i).create_phantom
+					phantom.phantom_runs = []
+					#phantom.runner = nil
+					#pp phantom; STDIN.gets
+					#phantom.instance_variables.each{|var| puts var; pp var;  puts Marshal.dump(phantom.instance_variable_get(var)); STDIN.gets}
+					#puts Marshal.dump(phantom); STDIN.gets
+					#pp phantom; STDIN.gets
+					#p phantom.class
+					phantom.job_no = @job_no 
+					Dir.chdir("flux_tube_#{i+1}"){phantom.process_directory}
+					phantom.phantom_runs = []
+					@phantom_runs.push phantom
+					phantom.real_id = @id
+					#@gs2_run_list[i] = phantom
+					#pp phantom; STDIN.gets
+					#phantom.runner = nil
+					#puts Marshal.dump(phantom); STDIN.gets
+					#pp phantom; STDIN.gets
+					#phantom.phantom_runs = []
+				end
+			end
+		end
+
+		
+		def save
+			@gs2_run_list.values.each{|r| r.runner = nil; r.phantom_runs = []} if @gs2_run_list.kind_of? Hash
+  
+			logf(:save)
+			raise CRFatal.new("Something has gone horribly wrong: runner.class is #{@runner.class} instead of CodeRunner") unless @runner.class.to_s == "CodeRunner"
+			runner, @runner = @runner, nil
+			@system_triers, old_triers = nil, @system_triers
+			@phantom_runs.each{|run| run.runner = nil; run.phantom_runs = []} if @phantom_runs
+			#@phantom_runs.each{|run| run.runner = nil} if @phantom_runs
+		#   logi(self)
+			#pp self
+		  #@phantom_runs.each{|ph| ph.instance_variables.each{|var| puts var; pp ph.instance_variable_get(var); STDIN.gets;  puts ph.Marshal.dump(instance_variable_get(var))}} if @phantom_runs
+		  #instance_variables.each{|var| puts var;  instance_variable_get(var);  puts Marshal.dump(instance_variable_get(var)); STDIN.gets}
+			Dir.chdir(@directory){File.open(".code_runner_run_data", 'w'){|file| file.puts Marshal.dump(self)}}
+			@runner = runner
+			@phantom_runs.each{|run| run.runner = runner} if @phantom_runs
+			@system_triers = old_triers
+		end
 
 		@source_code_subfolders = []
 
