@@ -820,7 +820,16 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]}}},
+       :autoscanned_defaults=>[".true."]},
+     :subfolders=>
+      {:should_include=>"true",
+       :description=>"If true, run flux tubes in numbered subfolders.",
+       :help=>"If true, run flux tubes in numbered subfolders.",
+       :code_name=>:subfolders,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
@@ -1201,78 +1210,70 @@
        :autoscanned_defaults=>[".false."]},
      :nbi_mult=>
       {:should_include=>"true",
-       :description=>
-        " multiplies QNBII, QNBIE and SNBIE when using the tokamak profile db, may not be self consistent when using TORQ for torque input (as opposed to pioq)",
-       :help=>
-        " multiplies QNBII, QNBIE and SNBIE when using the tokamak profile db, may not be self consistent when using TORQ for torque input (as opposed to pioq)",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:nbi_mult,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]},
+       :autoscanned_defaults=>[]},
      :icrh_mult=>
       {:should_include=>"true",
-       :description=>
-        " multiplies QICRHI and QICRHE when using the tokamak profile db",
-       :help=>
-        " multiplies QICRHI and QICRHE when using the tokamak profile db",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:icrh_mult,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]},
+       :autoscanned_defaults=>[]},
      :ech_mult=>
       {:should_include=>"true",
-       :description=>
-        " multiplies QECHI and QECHE when using the tokamak profile db",
-       :help=>" multiplies QECHI and QECHE when using the tokamak profile db",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:ech_mult,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]},
+       :autoscanned_defaults=>[]},
      :lh_mult=>
       {:should_include=>"true",
-       :description=>
-        " multiplies QLHI and QLHE when using the tokamak profile db",
-       :help=>" multiplies QLHI and QLHE when using the tokamak profile db",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:lh_mult,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]},
+       :autoscanned_defaults=>[]},
      :ibw_mult=>
       {:should_include=>"true",
-       :description=>
-        " multiplies QIBWI and QIBWE when using the tokamak profile db",
-       :help=>" multiplies QIBWI and QIBWE when using the tokamak profile db",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:ibw_mult,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]},
+       :autoscanned_defaults=>[]},
      :dwn_mult=>
       {:should_include=>"true",
-       :description=>
-        " multiplies DWIR, DWER, DNER when using the tokamak profile db",
-       :help=>" multiplies DWIR, DWER, DNER when using the tokamak profile db",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:dwn_mult,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]}}},
+       :autoscanned_defaults=>[]}}},
  :physics=>
   {:description=>"",
    :should_include=>"true",

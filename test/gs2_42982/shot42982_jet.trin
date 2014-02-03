@@ -3,11 +3,11 @@
 
 &geometry
 geo_option = "iterdb"
-geo_file = "pr08_jet_42982_2d.dat"
+geo_file = "../../pr08_jet_42982_2d.dat"
 geo_time = 15.2
 fluxlabel_option = "aminor"
 rad_out = 0.85
-nrad = 9
+nrad = 5
 use_external_geo = .false.
 write_dbinfo = .true.
 /
@@ -34,8 +34,9 @@ ntdelt_max = 100.0
 &fluxes
 flux_option = "gs2"
 vtfac = 2.0
-grad_option = "tgrads"
+grad_option = "tigrad"
 fork_flag = .true.
+subfolders = .true.
 /
 
 &physics

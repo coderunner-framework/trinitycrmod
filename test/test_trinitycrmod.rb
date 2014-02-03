@@ -32,7 +32,11 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		}
 	end
 	def test_submit
-		CodeRunner.submit(Y: 'test/gs2_42982', T: true, X: '/dev/null', n: '8')
+		if ENV['TRINITY_EXEC']
+			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8')
+		else
+			CodeRunner.submit(Y: 'test/gs2_42982', T: true, X: '/dev/null', n: '8')
+		end
 	end
 end
 

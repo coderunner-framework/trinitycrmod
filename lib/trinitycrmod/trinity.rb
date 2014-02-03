@@ -78,20 +78,41 @@ class CodeRunner
 		def generate_input_file
 			  @run_name += "_t"
 				write_input_file
-				if @flux_option == "gs2"
-					for i in 0...(@nrad-1)
-						gs2run = gs2_run(:base).dup
-					  gs2_run(i).instance_variables.each do |var|
-						  gs2run.instance_variable_set(var, gs2_run(i).instance_variable_get(var))
-						end
-					  gs2run.run_name = @run_name + i.to_s
-						gs2run.nprocs = @nprocs
-						gs2run.directory = @directory
-						gs2run.relative_directory = @relative_directory
-					  gs2run.generate_input_file	
-					end
-				end
+				generate_gs2_input_files if @flux_option == "gs2"
 		end
+
+		# Writes the gs2 input files, creating separate subfolders 
+		# for them if @subfolders is .true.
+		def generate_gs2_input_files
+			for i in 0...(@nrad-1)*2
+				gs2run = gs2_run(:base).dup
+				gs2_run(i).instance_variables.each do |var|
+					gs2run.instance_variable_set(var, gs2_run(i).instance_variable_get(var))
+				end
+				if @subfolders and @subfolders.fortran_true?
+					gs2run.directory = @directory + "/flux_tube_#{i+1}"
+					FileUtils.makedirs(gs2run.directory)
+					gs2run.relative_directory = @relative_directory + "/flux_tube_#{i+1}"
+					gs2run.restart_dir = gs2run.directory + "/nc"
+				else
+					gs2run.directory = @directory
+					gs2run.relative_directory = @relative_directory
+				end
+				gs2run.run_name = @run_name + (i+1).to_s
+				gs2run.nprocs = @nprocs
+				Dir.chdir(gs2run.directory){gs2run.generate_input_file}
+				if @subfolders and @subfolders.fortran_true?
+					infile = gs2run.directory + "/" + gs2run.run_name + ".in"
+					text = File.read(infile)
+					File.open(infile, 'w'){|f| f.puts text.sub(/restart_dir\s*=\s*"nc"/, "restart_dir = \"flux_tube_#{i+1}/nc\"")}
+				end
+			end
+		end
+
+  def vim_output
+		system "vim -Ro #{output_file} #{error_file} #@directory/#@run_name.error #@directory/#@run_name.out "
+	end
+	alias :vo :vim_output
 
 		#  This command uses the infrastructure provided by Run::FortranNamelist, provided by CodeRunner itself.
 		def write_input_file
