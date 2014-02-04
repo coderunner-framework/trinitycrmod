@@ -34,15 +34,6 @@ Gem::Specification.new do |s|
     "lib/trinitycrmod/trinity_gs2.rb",
     "sync_variables/helper.rb",
     "sync_variables/sync_variables.rb",
-    "test/gs2_42982/pr08_jet_42982_1d.dat.gz",
-    "test/gs2_42982/pr08_jet_42982_2d.dat.gz",
-    "test/gs2_42982/shot42982_jet.in",
-    "test/gs2_42982/shot42982_jet.trin",
-    "test/gs2_42982_results/v.tgz",
-    "test/helper.rb",
-    "test/ifspppl/test.trin",
-    "test/ifspppl_results/v/id_1.tgz",
-    "test/test_trinitycrmod.rb",
     "trinitycrmod.gemspec"
   ]
   s.homepage = "http://github.com/edmundhighcock/trinitycrmod"

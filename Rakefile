@@ -21,6 +21,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{This module allows Trinity, the Multiscale Gyrokinetic Turbulent Transport solver for Fusion Reactors, to harness the power of CodeRunner, a framework for the automated running and analysis of simulations.}
   gem.email = "edmundhighcock@sourceforge.net"
   gem.authors = ["Edmund Highcock"]
+	gem.files.exclude 'test/**/*'
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
