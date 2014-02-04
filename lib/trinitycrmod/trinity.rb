@@ -84,6 +84,8 @@ class CodeRunner
 		# Writes the gs2 input files, creating separate subfolders 
 		# for them if @subfolders is .true.
 		def generate_gs2_input_files
+			# At the moment we must use subfolders
+		  raise "subfolders must be .true. " unless @subfolders and @subfolders.fortran_true?
 			for i in 0...(@nrad-1)*2
 				gs2run = gs2_run(:base).dup
 				gs2_run(i).instance_variables.each do |var|
