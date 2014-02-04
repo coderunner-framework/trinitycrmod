@@ -71,7 +71,9 @@ class TestTrinitycrmodGs2Analysis < Test::Unit::TestCase
 		newrun=nil
 		Dir.chdir(run.directory){run.save; newrun = CodeRunner::Trinity.load(Dir.pwd, @runner)}
 		assert_equal(CodeRunner, newrun.runner.class)
-		assert_equal(CodeRunner, newrun.gs2_run(1).runner.class)
+		assert_equal(CodeRunner, newrun.gs2_runs[1].runner.class)
+		run.status = :Unknown
+		@runner.recheck_filtered_runs
 	end
 	#def test_load_component_runs
 		#CodeRunner.status(Y: 'test/gs2_42982_results')

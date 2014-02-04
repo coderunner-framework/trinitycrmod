@@ -73,12 +73,12 @@ class CodeRunner
 			beginning
 		end
 
-		def self.load(dir, runner)
-			run = super(dir, runner)
-			grun_list = run.instance_variable_get(:@gs2_run_list)
-			grun_list.values.each{|r| r.runner=runner} if grun_list.kind_of? Hash
-			run
-		end
+		#def self.load(dir, runner)
+			#run = super(dir, runner)
+			#grun_list = run.instance_variable_get(:@gs2_run_list)
+			#grun_list.values.each{|r| r.runner=runner} if grun_list.kind_of? Hash
+			#run
+		#end
 
 
 		#  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
@@ -88,16 +88,33 @@ class CodeRunner
 				generate_gs2_input_files if @flux_option == "gs2"
 		end
 
+		# The number of separate flux tube results needed for the jacobian
+		def n_flux_tubes
+			neqs = case @grad_option
+							when "ntgrads"
+								4
+							when "tgrads"
+								3
+							when "tigrad"
+								2
+							else
+								raise "unknown grad_option: #@grad_option"
+							end
+			p 'nraaad', @nrad
+			(@nrad-1) * neqs
+		end
 		# Writes the gs2 input files, creating separate subfolders 
 		# for them if @subfolders is .true.
 		def generate_gs2_input_files
 			# At the moment we must use subfolders
 		  raise "subfolders must be .true. " unless @subfolders and @subfolders.fortran_true?
-			for i in 0...(@nrad-1)*2
-				gs2run = gs2_run(:base).dup
-				gs2_run(i).instance_variables.each do |var|
-					gs2run.instance_variable_set(var, gs2_run(i).instance_variable_get(var))
-				end
+			for i in 0...n_flux_tubes
+				#gs2run = gs2_run(:base).dup
+				#gs2_run(i).instance_variables.each do |var|
+					#gs2run.instance_variable_set(var, gs2_run(i).instance_variable_get(var))
+				#end
+				gs2run = gs2_runs[i]
+				#p ['i',i]
 				if @subfolders and @subfolders.fortran_true?
 					gs2run.directory = @directory + "/flux_tube_#{i+1}"
 					FileUtils.makedirs(gs2run.directory)
@@ -146,11 +163,12 @@ class CodeRunner
 
 		def generate_component_runs
 			#puts "HERE"
-			@component_runs = []
+			@component_runs ||= []
 			if @flux_option == "gs2"
 			#puts "HERE"
-				for i in 0...(@nrad-1)*2
-					component = gs2_run(i).create_component
+		  
+				for i in 0...n_flux_tubes
+					component = (@component_runs[i] ||= Gs2.new(@runner).create_component)
 					component.component_runs = []
 					#component.runner = nil
 					#pp component; STDIN.gets
@@ -159,9 +177,14 @@ class CodeRunner
 					#pp component; STDIN.gets
 					#p component.class
 					component.job_no = @job_no 
-					Dir.chdir("flux_tube_#{i+1}"){component.process_directory}
+					component.status = @status
+			#p ["HERE2", @component_runs.size, @component_runs[i]]
+					#Dir.chdir(@directory) {
+						compdir = "flux_tube_#{i+1}"
+						Dir.chdir(compdir){component.process_directory} if FileTest.exist? compdir
+					#}
 					component.component_runs = []
-					@component_runs.push component
+					#@component_runs.push component
 					component.real_id = @id
 					#@gs2_run_list[i] = component
 					#pp component; STDIN.gets
@@ -175,8 +198,9 @@ class CodeRunner
 
 		
 		def save
-			@gs2_run_list.values.each{|r| r.runner = nil; r.component_runs = []} if @gs2_run_list.kind_of? Hash
+			#@gs2_run_list.values.each{|r| r.runner = nil; r.component_runs = []} if @gs2_run_list.kind_of? Hash
 			super
+			#@gs2_run_list.values.each{|r| r.runner = @runner} if @gs2_run_list.kind_of? Hash
   
 			#logf(:save)
 			#raise CRFatal.new("Something has gone horribly wrong: runner.class is #{@runner.class} instead of CodeRunner") unless @runner.class.to_s == "CodeRunner"

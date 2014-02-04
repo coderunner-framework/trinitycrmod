@@ -28,9 +28,12 @@ class CodeRunner
 			CodeRunner::Gs2.make_new_defaults_file(name + '_gs2tmp', gs2_input_file)
 
 			File.open(defaults_filename, 'a'){|file| file.puts <<EOF2
-gs2_run(:base).instance_eval do
+gs2_runs.each do |run|
+run.instance_eval do
 #{File.read(tmp_filename).gsub(/\A|\n/, "\n  ")}
 end
+end
+
 
 EOF2
     
@@ -41,14 +44,19 @@ EOF2
 
 		end
 
-		def gs2_run(key)
-			@gs2_run_list ||= {}
-			@gs2_run_list[key] ||= Gs2.new(@runner)
-			#if key != :base
-				#raise "key in gs2_run must be either :base or an integer" unless key.kind_of? Integer
-				#@gs2_run_list[key] ||= @gs2_run_list[:base].dup
-			#end
-			@gs2_run_list[key]
+		def gs2_runs
+			#puts "2@COMMMMMMMMMMMMMPOOOOOOOOOOOOOONNNETN", @component_runs
+			generate_component_runs if not (@component_runs and @component_runs.size > 0)
+			#p ["@COMMMMMMMMMMMMMPOOOOOOOOOOOOOONNNETN", @component_runs]
+			@component_runs
+			#@gs2_run_list ||= {}
+			#raise TypeError.new("@runner is nil") if @runner.nil?
+			#@gs2_run_list[key] ||= Gs2.new(@runner)
+			##if key != :base
+				##raise "key in gs2_run must be either :base or an integer" unless key.kind_of? Integer
+				##@gs2_run_list[key] ||= @gs2_run_list[:base].dup
+			##end
+			#@gs2_run_list[key]
 		end
 
     # Override standard CodeRunner method to allow for Gs2 variables
