@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 # Add dependencies required to use your gem here.
 # Example:
-   gem "coderunner", ">= 0.13.32"
+   gem "coderunner", ">= 0.14.0"
    gem "text-data-tools", ">= 1.1.3"
 	 gem "gs2crmod", ">=0.11.10"
 

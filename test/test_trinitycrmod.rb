@@ -40,18 +40,38 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		else
 			CodeRunner.submit(Y: 'test/gs2_42982', T: true, X: '/dev/null', n: '8')
 		end
-		@runner.use_phantom = :phantom
+		@runner.use_component = :component
 		@runner.recalc_all = true
 		@runner.update
-		CodeRunner.status(Y: 'test/gs2_42982', h: :phantom, A: true)
+		CodeRunner.status(Y: 'test/gs2_42982', h: :component, A: true)
 	end
 	def teardown 
     FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_gs2_42982_defaults.rb')
     FileUtils.rm('test/gs2_42982/rake_test_gs2_42982_defaults.rb')
-    #FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
-    #FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
-    #FileUtils.rm('test/gs2_42982/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
-		#FileUtils.rm_r('test/gs2_42982/v/')
+    FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
+    FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
+    FileUtils.rm('test/gs2_42982/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+		if ENV['TRINITY_EXEC'] and not FileTest.exist?('test/gs2_42982_results/v.tgz')
+			Dir.chdir('test/gs2_42982'){system("tar -czf v.tgz v/")}
+			FileUtils.mv('test/gs2_42982/v.tgz', 'test/gs2_42982_results/.')
+		end
+		FileUtils.rm_r('test/gs2_42982/v/')
+	end
+end
+
+class TestTrinitycrmodGs2Analysis < Test::Unit::TestCase
+	def setup
+		Dir.chdir('test/gs2_42982_results/'){system "tar -xzf v.tgz"}
+    @runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982_results', C: 'trinity', A: true)
+	end
+	def test_analysis
+		CodeRunner.status(Y: 'test/gs2_42982_results')
+		CodeRunner.status(Y: 'test/gs2_42982_results', h: :component)
+	end
+	def teardown
+		FileUtils.rm_r('test/gs2_42982_results/v')
+    FileUtils.rm('test/gs2_42982_results/.code_runner_script_defaults.rb')
+    FileUtils.rm('test/gs2_42982_results/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
 	end
 end
 

@@ -135,53 +135,54 @@ class CodeRunner
 		def parameter_transition
 		end
 
-		def generate_phantom_runs
+		def generate_component_runs
 			#puts "HERE"
-			@phantom_runs = []
+			@component_runs = []
 			if @flux_option == "gs2"
 			#puts "HERE"
 				for i in 0...(@nrad-1)*2
-					phantom = gs2_run(i).create_phantom
-					phantom.phantom_runs = []
-					#phantom.runner = nil
-					#pp phantom; STDIN.gets
-					#phantom.instance_variables.each{|var| puts var; pp var;  puts Marshal.dump(phantom.instance_variable_get(var)); STDIN.gets}
-					#puts Marshal.dump(phantom); STDIN.gets
-					#pp phantom; STDIN.gets
-					#p phantom.class
-					phantom.job_no = @job_no 
-					Dir.chdir("flux_tube_#{i+1}"){phantom.process_directory}
-					phantom.phantom_runs = []
-					@phantom_runs.push phantom
-					phantom.real_id = @id
-					#@gs2_run_list[i] = phantom
-					#pp phantom; STDIN.gets
-					#phantom.runner = nil
-					#puts Marshal.dump(phantom); STDIN.gets
-					#pp phantom; STDIN.gets
-					#phantom.phantom_runs = []
+					component = gs2_run(i).create_component
+					component.component_runs = []
+					#component.runner = nil
+					#pp component; STDIN.gets
+					#component.instance_variables.each{|var| puts var; pp var;  puts Marshal.dump(component.instance_variable_get(var)); STDIN.gets}
+					#puts Marshal.dump(component); STDIN.gets
+					#pp component; STDIN.gets
+					#p component.class
+					component.job_no = @job_no 
+					Dir.chdir("flux_tube_#{i+1}"){component.process_directory}
+					component.component_runs = []
+					@component_runs.push component
+					component.real_id = @id
+					#@gs2_run_list[i] = component
+					#pp component; STDIN.gets
+					#component.runner = nil
+					#puts Marshal.dump(component); STDIN.gets
+					#pp component; STDIN.gets
+					#component.component_runs = []
 				end
 			end
 		end
 
 		
 		def save
-			@gs2_run_list.values.each{|r| r.runner = nil; r.phantom_runs = []} if @gs2_run_list.kind_of? Hash
+			@gs2_run_list.values.each{|r| r.runner = nil; r.component_runs = []} if @gs2_run_list.kind_of? Hash
+			super
   
-			logf(:save)
-			raise CRFatal.new("Something has gone horribly wrong: runner.class is #{@runner.class} instead of CodeRunner") unless @runner.class.to_s == "CodeRunner"
-			runner, @runner = @runner, nil
-			@system_triers, old_triers = nil, @system_triers
-			@phantom_runs.each{|run| run.runner = nil; run.phantom_runs = []} if @phantom_runs
-			#@phantom_runs.each{|run| run.runner = nil} if @phantom_runs
-		#   logi(self)
-			#pp self
-		  #@phantom_runs.each{|ph| ph.instance_variables.each{|var| puts var; pp ph.instance_variable_get(var); STDIN.gets;  puts ph.Marshal.dump(instance_variable_get(var))}} if @phantom_runs
-		  #instance_variables.each{|var| puts var;  instance_variable_get(var);  puts Marshal.dump(instance_variable_get(var)); STDIN.gets}
-			Dir.chdir(@directory){File.open(".code_runner_run_data", 'w'){|file| file.puts Marshal.dump(self)}}
-			@runner = runner
-			@phantom_runs.each{|run| run.runner = runner} if @phantom_runs
-			@system_triers = old_triers
+			#logf(:save)
+			#raise CRFatal.new("Something has gone horribly wrong: runner.class is #{@runner.class} instead of CodeRunner") unless @runner.class.to_s == "CodeRunner"
+			#runner, @runner = @runner, nil
+			#@system_triers, old_triers = nil, @system_triers
+			#@component_runs.each{|run| run.runner = nil; run.component_runs = []} if @component_runs
+			##@component_runs.each{|run| run.runner = nil} if @component_runs
+		##   logi(self)
+			##pp self
+		  ##@component_runs.each{|ph| ph.instance_variables.each{|var| puts var; pp ph.instance_variable_get(var); STDIN.gets;  puts ph.Marshal.dump(instance_variable_get(var))}} if @component_runs
+		  ##instance_variables.each{|var| puts var;  instance_variable_get(var);  puts Marshal.dump(instance_variable_get(var)); STDIN.gets}
+			#Dir.chdir(@directory){File.open(".code_runner_run_data", 'w'){|file| file.puts Marshal.dump(self)}}
+			#@runner = runner
+			#@component_runs.each{|run| run.runner = runner} if @component_runs
+			#@system_triers = old_triers
 		end
 
 		@source_code_subfolders = []
