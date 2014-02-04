@@ -67,7 +67,19 @@ class TestTrinitycrmodGs2Analysis < Test::Unit::TestCase
 	def test_analysis
 		CodeRunner.status(Y: 'test/gs2_42982_results')
 		CodeRunner.status(Y: 'test/gs2_42982_results', h: :component)
+		run = @runner.run_list[1]
+		newrun=nil
+		Dir.chdir(run.directory){run.save; newrun = CodeRunner::Trinity.load(Dir.pwd, @runner)}
+		assert_equal(CodeRunner, newrun.runner.class)
+		assert_equal(CodeRunner, newrun.gs2_run(1).runner.class)
 	end
+	#def test_load_component_runs
+		#CodeRunner.status(Y: 'test/gs2_42982_results')
+		#run = @runner.run_list[1]
+		#newrun=nil
+		#Dir.chdir(run.directory){run.save; newrun = CodeRunner::Trinity.load(Dir.pwd, @runner)}
+		#assert_equal(CodeRunner, newrun.runner.class)
+	#end
 	def teardown
 		FileUtils.rm_r('test/gs2_42982_results/v')
     FileUtils.rm('test/gs2_42982_results/.code_runner_script_defaults.rb')

@@ -73,6 +73,13 @@ class CodeRunner
 			beginning
 		end
 
+		def self.load(dir, runner)
+			run = super(dir, runner)
+			grun_list = run.instance_variable_get(:@gs2_run_list)
+			grun_list.values.each{|r| r.runner=runner} if grun_list.kind_of? Hash
+			run
+		end
+
 
 		#  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
 		def generate_input_file
