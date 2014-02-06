@@ -18,6 +18,8 @@ class CodeRunner
 		require 'trinitycrmod/output_files'
 		require 'trinitycrmod/graphs'
 		require 'trinitycrmod/trinity_gs2'
+		require 'trinitycrmod/check_parameters'
+		require 'trinitycrmod/actual_parameter_values'
 			
 		# Setup gs2 in case people are using it
 		CodeRunner.setup_run_class('gs2')
@@ -84,30 +86,39 @@ class CodeRunner
 		#  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
 		def generate_input_file
 			  @run_name += "_t"
+				check_parameters
 				write_input_file
 				generate_gs2_input_files if @flux_option == "gs2"
 		end
 
+
 		# The number of separate flux tube results needed for the jacobian
 		def n_flux_tubes
-			neqs = case @grad_option
-							when "ntgrads"
-								4
-							when "tgrads"
-								3
-							when "tigrad"
-								2
-							else
-								raise "unknown grad_option: #@grad_option"
-							end
-			p 'nraaad', @nrad
-			(@nrad-1) * neqs
+			d1 = dflx_stencil_actual - 1
+			ngrads =d1 * case @grad_option
+										when "tigrad", "ngrad", "lgrad"
+											1
+										when "tgrads"
+											2
+										when "ltgrads", "ntgrads"
+											3
+										when "all"
+											4
+										else
+											raise "unknown grad_option: #@grad_option"
+										end
+			if evolve_grads_only_actual.fortran_true?
+				njac = ngrads + 1
+			else
+				njac = 2*ngrads+1
+			end
+			#p 'nraaad', @nrad
+			(@nrad-1) * njac
 		end
 		# Writes the gs2 input files, creating separate subfolders 
 		# for them if @subfolders is .true.
 		def generate_gs2_input_files
 			# At the moment we must use subfolders
-		  raise "subfolders must be .true. " unless @subfolders and @subfolders.fortran_true?
 			for i in 0...n_flux_tubes
 				#gs2run = gs2_run(:base).dup
 				#gs2_run(i).instance_variables.each do |var|

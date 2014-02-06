@@ -3,10 +3,14 @@ require 'helper'
 class TestTrinitycrmodIFSPPPL < Test::Unit::TestCase
   def setup
     @runner = CodeRunner.fetch_runner(Y: 'test/ifspppl', C: 'trinity', X: '/dev/null')
+		system("gunzip test/gs2_42982/pr08_jet_42982_1d.dat.gz -c > test/gs2_42982/pr08_jet_42982_1d.dat")
+		system("gunzip test/gs2_42982/pr08_jet_42982_2d.dat.gz -c > test/gs2_42982/pr08_jet_42982_2d.dat")
   end
   def teardown
     FileUtils.rm('test/ifspppl/.code_runner_script_defaults.rb')
     FileUtils.rm('test/ifspppl/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+    FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
+    FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
   end
   def test_basics
     assert_equal(@runner.run_class, CodeRunner::Trinity)

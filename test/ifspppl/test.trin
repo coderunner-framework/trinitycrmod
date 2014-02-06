@@ -3,7 +3,7 @@
 
 &geometry
 geo_option = "iterdb"
-geo_file = "../../../ifspppl/2d.dat"
+geo_file = "../../../gs2_42982/pr08_jet_42982_2d.dat"
 geo_time = 15.2
 fluxlabel_option = "aminor"
 rad_out = 0.85
