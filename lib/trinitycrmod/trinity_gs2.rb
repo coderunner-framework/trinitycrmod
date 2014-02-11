@@ -44,7 +44,11 @@ EOF2
 
 		end
 
+		# Generates the component runs for GS2 and returns the hash
+		# Raises an error if flux_option != "gs2"
 		def gs2_runs
+			raise FluxOptionError.new("gs2_runs called and flux_option != gs2") if not flux_gs2?
+
 			#puts "2@COMMMMMMMMMMMMMPOOOOOOOOOOOOOONNNETN", @component_runs
 			generate_component_runs if not (@component_runs and @component_runs.size > 0)
 			#p ["@COMMMMMMMMMMMMMPOOOOOOOOOOOOOONNNETN", @component_runs]
@@ -62,15 +66,31 @@ EOF2
     # Override standard CodeRunner method to allow for Gs2 variables
 		def evaluate_defaults_file(filename)
 			text = File.read(filename)
+			instance_eval(text)
 			text.scan(/^\s*@(\w+)/) do
 				var_name = $~[1].to_sym
 				next if var_name == :defaults_file_description
-				unless rcp.variables.include? var_name or Gs2.rcp.variables.include? var_name
+				unless rcp.variables.include? var_name or (flux_gs2? and Gs2.rcp.variables.include? var_name)
 					warning("---#{var_name}---, specified in #{File.expand_path(filename)}, is not a variable. This could be an error")
 				end
 			end
-			instance_eval(text)
 		end
 
+		# An array of arrays containing the GS2 run times for each iteration. 
+		# Produced unscientifically by scanning the stdout.
+		def gs2_run_times
+			raise FluxOptionError.new("gs2_run_times called and flux_option != gs2") if not flux_gs2?
+			run_times = []
+			File.open(@directory + '/' + output_file, "r").each_line{|l| l.scan(/Job.*timer.*(\d+\.\d+)/){run_times.push $~[1].to_f}}
+			sz = run_times.size.to_f
+			return run_times.pieces((sz / n_flux_tubes.to_f).ceil)
+
+		end
+
+		# Is the flux tube code being used gs2?
+		def flux_gs2?
+			@flux_option == "gs2"
+		end
 	end
+
 end

@@ -78,6 +78,7 @@ class TestTrinitycrmodGs2Analysis < Test::Unit::TestCase
 		assert_equal(CodeRunner, newrun.gs2_runs[1].runner.class)
 		run.status = :Unknown
 		@runner.recheck_filtered_runs
+	  assert_equal(8, @runner.run_list[1].gs2_run_times[0].size)
 	end
 	#def test_load_component_runs
 		#CodeRunner.status(Y: 'test/gs2_42982_results')

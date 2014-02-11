@@ -7,6 +7,9 @@ class CodeRunner
 	#  It  generates the Trinity input file, and both analyses the results and allows easy plotting of them. It also interfaces with the GS2 CodeRunner  module to allow analysis of the individual GS2 results if GS2 is being used as the flux code.
 	class Trinity < Run::FortranNamelist
 		#include CodeRunner::SYSTEM_MODULE
+		#
+
+		class FluxOptionError < StandardError; end
 
 
 
