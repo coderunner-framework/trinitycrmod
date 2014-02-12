@@ -81,7 +81,7 @@ EOF2
 		def gs2_run_times
 			raise FluxOptionError.new("gs2_run_times called and flux_option != gs2") if not flux_gs2?
 			run_times = []
-			File.open(@directory + '/' + output_file, "r").each_line{|l| l.scan(/Job.*timer.*(\d+\.\d+)/){run_times.push $~[1].to_f}}
+			File.open(@directory + '/' + output_file, "r").each_line{|l| l.scan(/Job.*timer.*(\b\d+\.\d+\b)/){run_times.push $~[1].to_f}}
 			sz = run_times.size.to_f
 			return run_times.pieces((sz / n_flux_tubes.to_f).ceil)
 
