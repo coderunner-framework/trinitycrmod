@@ -50,7 +50,7 @@ EOF2
 			raise FluxOptionError.new("gs2_runs called and flux_option != gs2") if not flux_gs2?
 
 			#puts "2@COMMMMMMMMMMMMMPOOOOOOOOOOOOOONNNETN", @component_runs
-			generate_component_runs if not (@component_runs and @component_runs.size > 0)
+			generate_component_runs if not (@component_runs and @component_runs.size == n_flux_tubes)
 			#p ["@COMMMMMMMMMMMMMPOOOOOOOOOOOOOONNNETN", @component_runs]
 			@component_runs
 			#@gs2_run_list ||= {}
