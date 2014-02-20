@@ -182,7 +182,25 @@ class CodeRunner
 			#puts "HERE"
 		  
 				for i in 0...n_flux_tubes
-					component = (@component_runs[i] ||= Gs2.new(@runner).create_component)
+					component = @component_runs[i] 
+					  #p [i, '9,', component, '4', !@component_runs[i]]; STDIN.gets
+					if not component
+						#p "HEELO"
+					  #p [i, '3,', component, '4', @component_runs.size]
+						component = @component_runs[i] =  Gs2.new(@runner).create_component
+					  #p [i, '3,', component, '4', @component_runs.size]
+						if i > 0 and @component_runs[i-1]
+							component.rcp.variables.each do |var|
+								val = @component_runs[i-1].send(var)
+								component.set(var, val) if val
+							end 
+						end
+					end 
+					#p [i,'1', component, '2', @component_runs.size]; STDIN.gets
+					component = @component_runs[i] 
+					#p [i,'1', component, '2']; STDIN.gets
+
+
 					component.component_runs = []
 					#component.runner = nil
 					#pp component; STDIN.gets
