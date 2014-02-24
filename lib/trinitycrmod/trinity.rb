@@ -18,6 +18,7 @@ class CodeRunner
 
 		# Use the Run::FortranNamelist tools to process the variable database
 		setup_namelists(@code_module_folder)
+		@variables += [:flux_pars]
 		require 'trinitycrmod/output_files'
 		require 'trinitycrmod/graphs'
 		require 'trinitycrmod/trinity_gs2'
@@ -94,6 +95,43 @@ class CodeRunner
 				generate_gs2_input_files if @flux_option == "gs2"
 		end
 
+
+		# Update submission parameters in the normal way then deal with parameters
+		# for the flux code. Each flux code will behave differently.
+		#
+		# * Gs2
+		#   flux_pars: {nx: 43, delt: {1=> 0.01, 2=>0.05}}
+		#  will set nx for all runs to be 43, and delt for run 1 to 0.01, delt
+		#  for run 2 to be 0.05
+		def update_submission_parameters(parameters, start_from_defaults=true)
+			super(parameters, start_from_defaults)
+			if @flux_pars
+				@flux_pars.each do |par, val|
+					if @flux_option == "gs2"
+						if val.kind_of? Hash
+							val.each{|n,v| gs2_runs[n].set(par, v)}
+						else
+							gs2_runs.each{|r| r.set(par, val)}
+						end
+					end
+				end
+			end
+			self
+		end
+
+		# Override CodeRunner::Run method to deal with flux_pars properly
+		# when generating run_name
+		def generate_run_name
+				@run_name = %[v#@version] + @naming_pars.inject("") do |str, par|
+					case par
+					when :flux_pars
+						str+="_flx_#{send(par).map{|k,v| "#{k}_#{v.to_s[0..8]}"}.join("_")}}"
+					else
+						str+="_#{par}_#{send(par).to_s[0...8]}"
+					end
+				end
+				@run_name = @run_name.gsub(/\s+/, "_").gsub(/[\/{}]/, '') + "_id_#@id"
+		end
 
 		# The number of separate flux tube results needed for the jacobian
 		def n_flux_tubes

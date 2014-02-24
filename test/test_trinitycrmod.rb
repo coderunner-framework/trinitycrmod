@@ -42,12 +42,16 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		if ENV['TRINITY_EXEC']
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8')
 		else
-			CodeRunner.submit(Y: 'test/gs2_42982', T: true, X: '/dev/null', n: '8')
+			CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8')
 		end
+	  CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8', p: '{flux_pars: {nx: 43, delt: {2=>0.003}}}')
 		@runner.use_component = :component
 		@runner.recalc_all = true
 		@runner.update
 		CodeRunner.status(Y: 'test/gs2_42982', h: :component, A: true)
+		assert_equal(0.003, @runner.run_list[2].gs2_runs[2].delt)
+		assert_equal(0.01, @runner.run_list[2].gs2_runs[1].delt)
+		assert_equal(43, @runner.run_list[2].gs2_runs[1].nx)
 	end
 	def teardown 
     FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_gs2_42982_defaults.rb')
