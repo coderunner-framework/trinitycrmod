@@ -71,6 +71,10 @@ class CodeRunner::Trinity
 		def eln_temp_prof_graphkit(options)
 			return nt_prof_graphkit(options.absorb({header: /e\- temp/, title: 'Te', units: 'keV'}))
 		end
+		# Graph of n against rho for a given t_index
+		def dens_graphkit(options)
+			return nt_prof_graphkit(options.absorb({header: /dens/, title: 'n', units: '10^20 m^-3'}))
+		end
 
 		# Graph of ion power integrated from the magnetic axis to rho vs rho
 		def ion_pwr_prof_graphkit(options)

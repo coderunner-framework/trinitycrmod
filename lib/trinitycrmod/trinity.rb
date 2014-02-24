@@ -209,7 +209,7 @@ class CodeRunner
 					#pp component; STDIN.gets
 					#p component.class
 					component.job_no = @job_no 
-					component.status = @status
+					#component.status = @status
 			#p ["HERE2", @component_runs.size, @component_runs[i]]
 					#Dir.chdir(@directory) {
 						compdir = "flux_tube_#{i+1}"
