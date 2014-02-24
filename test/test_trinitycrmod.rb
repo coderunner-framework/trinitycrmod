@@ -44,7 +44,7 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		else
 			CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8')
 		end
-	  CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8', p: '{flux_pars: {nx: 43, delt: {2=>0.003}}}')
+	  CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '16', p: '{grad_option: "ntgrads", flux_pars: {nx: 43, delt: {2=>0.003}}}')
 		@runner.use_component = :component
 		@runner.recalc_all = true
 		@runner.update
@@ -52,6 +52,8 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		assert_equal(0.003, @runner.run_list[2].gs2_runs[2].delt)
 		assert_equal(0.01, @runner.run_list[2].gs2_runs[1].delt)
 		assert_equal(43, @runner.run_list[2].gs2_runs[1].nx)
+		assert_equal(16, @runner.run_list[2].gs2_runs.size)
+		assert_equal(8, @runner.run_list[1].gs2_runs.size)
 	end
 	def teardown 
     FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_gs2_42982_defaults.rb')
