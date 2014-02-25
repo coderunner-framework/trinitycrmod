@@ -1293,7 +1293,20 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]}}},
+       :autoscanned_defaults=>[1.0]},
+     :tritium_fraction=>
+      {:should_include=>"true",
+       :description=>
+        " If > 0.0 sets the fraction of tritium in alpha_power, overriding anyother data",
+       :help=>
+        " If > 0.0 sets the fraction of tritium in alpha_power, overriding anyother data",
+       :code_name=>:tritium_fraction,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]}}},
  :physics=>
   {:description=>"",
    :should_include=>"true",
