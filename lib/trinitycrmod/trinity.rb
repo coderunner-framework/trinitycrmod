@@ -87,10 +87,52 @@ class CodeRunner
 		#end
 
 
+		# Modify new_run so that it becomes a restart of self. Adusts
+		# all the parameters of the new run to be equal to the parameters
+		# of the run that calls this function, and sets up its run name
+		# correctly
+		def restart(new_run)
+			#new_run = self.dup
+			(rcp.variables).each{|v| new_run.set(v, send(v)) if send(v)}
+			if @flux_option == "gs2"
+				gs2_runs.each_with_index do |run, i|
+					CodeRunner::Gs2.rcp.variables.each{|v| new_run.gs2_runs[i].set(v, run.send(v)) if run.send(v)}
+				end
+			end
+			@naming_pars.delete(:preamble)
+			SUBMIT_OPTIONS.each{|v| new_run.set(v, self.send(v)) unless new_run.send(v)}
+			#(rcp.results + rcp.gs2_run_info).each{|result| new_run.set(result, nil)}
+			new_run.is_a_restart = true
+			new_run.restart_id = @id
+			new_run.restart_run_name = @run_name
+			new_run.init_option = "restart"
+			new_run.iternt_file = @run_name + ".iternt"
+			new_run.iterflx_file = @run_name + ".iterflx"
+			new_run.init_file = @run_name + ".tmp"
+			@runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs 
+			raise "Restart must be on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}" if !new_run.nprocs or new_run.nprocs != @nprocs
+		# 	@runner.parameters.each{|var, value| new_run.set(var,value)} if @runner.parameters
+		#   ep @runner.parameters
+			new_run.run_name = nil
+			new_run.naming_pars = @naming_pars
+			new_run.update_submission_parameters(new_run.parameter_hash.inspect, false) if new_run.parameter_hash 
+			new_run.naming_pars.delete(:restart_id)
+			new_run.generate_run_name
+			eputs 'Copying Restart files', ''
+			system "ls #@directory"
+			['iternt', 'iterflx', 'tmp'].each do |ext|
+				FileUtils.cp("#@directory/#@run_name.#{ext}", "#{new_run.directory}/.")
+			end
+			#@runner.submit(new_run)
+			new_run
+		end	
 		#  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
 		def generate_input_file
 			  @run_name += "_t"
 				check_parameters
+				if @restart_id
+					@runner.run_list[@restart_id].restart(self)
+				end
 				write_input_file
 				generate_gs2_input_files if @flux_option == "gs2"
 		end
@@ -312,10 +354,14 @@ class CodeRunner
 				end
 			else
 				get_completed_timesteps
-				if File.read(output_file) =~/trinity\s+finished/i
+				if @completed_timesteps == @ntstep
 					@status = :Complete
 				else
-					@status = :Failed
+					if FileTest.exist?(output_file) and File.read(output_file) =~/trinity\s+finished/i
+						@status = :Complete
+					else
+						@status = :Failed
+					end
 				end
 			end
 		end
@@ -339,7 +385,7 @@ class CodeRunner
 			@ne0 = info_outfile.get_variable_value(/core\s+density/i).to_f
 			@ti0 = info_outfile.get_variable_value(/core\s+T_i/i).to_f
 			@te0 = info_outfile.get_variable_value(/core\s+T_e/i).to_f
-			@omega0 = info_outfile.get_variable_value(/core\s+omega/i).to_f
+			@omega0 = info_outfile.get_variable_value(/core\s+omega/i).to_f rescue 0.0 # Old info files don't have omega
 			#p 'send(fusionQ)', send(:fusionQ)
 		end
 
@@ -410,6 +456,23 @@ EOF
 
 @defaults_file_description = ""
 EOF1
+		end
+
+		def run_heuristic_analysis
+			ep 'run_heuristic_analysis', Dir.pwd
+			infiles = Dir.entries.grep(/^[^\.].*\.trin$/)
+			ep infiles
+			raise CRMild.new('No input file') unless infiles[0]
+			raise CRError.new("More than one input file in this directory: \n\t#{infiles}") if infiles.size > 1
+			input_file = infiles[0]
+			#ep 'asdf'
+			@nprocs ||= "1"
+			@executable ||= "/dev/null"
+			make_info_file(input_file, false)
+		end
+
+		def input_file_extension
+			'.trin'
 		end
 
 	end

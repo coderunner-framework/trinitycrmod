@@ -5,12 +5,14 @@ class TestTrinitycrmodIFSPPPL < Test::Unit::TestCase
     @runner = CodeRunner.fetch_runner(Y: 'test/ifspppl', C: 'trinity', X: '/dev/null')
 		system("gunzip test/gs2_42982/pr08_jet_42982_1d.dat.gz -c > test/gs2_42982/pr08_jet_42982_1d.dat")
 		system("gunzip test/gs2_42982/pr08_jet_42982_2d.dat.gz -c > test/gs2_42982/pr08_jet_42982_2d.dat")
+		FileUtils.makedirs('test/ifspppl/v')
   end
   def teardown
     FileUtils.rm('test/ifspppl/.code_runner_script_defaults.rb')
     FileUtils.rm('test/ifspppl/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
     FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
     FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
+		FileUtils.rm_r('test/ifspppl/v')
   end
   def test_basics
     assert_equal(@runner.run_class, CodeRunner::Trinity)
@@ -18,15 +20,32 @@ class TestTrinitycrmodIFSPPPL < Test::Unit::TestCase
   def test_submit
     @runner.run_class.make_new_defaults_file("rake_test", "test/ifspppl/test.trin")
     FileUtils.mv('rake_test_defaults.rb', @runner.run_class.rcp.user_defaults_location)
-    CodeRunner.submit(Y: 'test/ifspppl', T: true, D: 'rake_test')
+		if ENV['TRINITY_EXEC']
+      CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'])
+      CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: '{restart_id: 1}')
+			Dir.chdir('test/ifspppl') do
+				system "ls v/id_2/"
+				#system "less v/id_2/#{@runner.run_list[2].error_file}"
+			end
+			#@runner.update
+			#CodeRunner.status(Y: 'test/ifspppl')
+			#STDIN.gets
+			assert_equal(:Complete, @runner.run_list[1].status)
+			assert_equal(:Complete, @runner.run_list[2].status)
+			assert_equal(@runner.run_list[1].list(:t).values.max, @runner.run_list[2].list(:t).values.min)
+		else
+      CodeRunner.submit(Y: 'test/ifspppl', T: true, D: 'rake_test')
+		end
 		base_hash = @runner.run_class.parse_input_file('test/ifspppl/test.trin')
 		test_hash = @runner.run_class.parse_input_file('test/ifspppl/v/id_1/v_id_1_t.trin')
 		assert_equal(base_hash, test_hash)
+		CodeRunner.status(Y: 'test/ifspppl')
     FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_defaults.rb')
     FileUtils.rm('test/ifspppl/rake_test_defaults.rb')
-		FileUtils.rm_r('test/ifspppl/v')
   end
 end
+
+unless ENV['NO_GS2']
 
 class TestTrinitycrmodGs2 < Test::Unit::TestCase
 	def setup
@@ -41,7 +60,14 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 	def test_submit
 		if ENV['TRINITY_EXEC']
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8')
+			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 1}')
+			CodeRunner.status(Y: 'test/gs2_42982')
+			assert_equal(:Complete, @runner.run_list[1].status)
+			assert_equal(:Complete, @runner.run_list[2].status)
+			assert_equal(@runner.run_list[1].list(:t).values.max, @runner.run_list[2].list(:t).values.min)
+
 		else
+			CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8')
 		end
 	  CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '16', p: '{grad_option: "ntgrads", flux_pars: {nx: 43, delt: {2=>0.003}}}')
@@ -49,10 +75,10 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 		@runner.recalc_all = true
 		@runner.update
 		CodeRunner.status(Y: 'test/gs2_42982', h: :component, A: true)
-		assert_equal(0.003, @runner.run_list[2].gs2_runs[2].delt)
-		assert_equal(0.01, @runner.run_list[2].gs2_runs[1].delt)
-		assert_equal(43, @runner.run_list[2].gs2_runs[1].nx)
-		assert_equal(16, @runner.run_list[2].gs2_runs.size)
+		assert_equal(0.003, @runner.run_list[3].gs2_runs[2].delt)
+		assert_equal(0.01, @runner.run_list[3].gs2_runs[1].delt)
+		assert_equal(43, @runner.run_list[3].gs2_runs[1].nx)
+		assert_equal(16, @runner.run_list[3].gs2_runs.size)
 		assert_equal(8, @runner.run_list[1].gs2_runs.size)
 	end
 	def teardown 
@@ -100,6 +126,8 @@ class TestTrinitycrmodGs2Analysis < Test::Unit::TestCase
 	end
 end
 
+
+end #unless ENV['NO_GS2']
 class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
   def setup
     #@runner = CodeRunner.fetch_runner(Y: 'test/ifspppl_results', C: 'trinity', X: '/dev/null')

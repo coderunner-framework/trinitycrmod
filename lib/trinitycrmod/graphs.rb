@@ -72,7 +72,7 @@ class CodeRunner::Trinity
 			return nt_prof_graphkit(options.absorb({header: /e\- temp/, title: 'Te', units: 'keV'}))
 		end
 		# Graph of n against rho for a given t_index
-		def dens_graphkit(options)
+		def dens_prof_graphkit(options)
 			return nt_prof_graphkit(options.absorb({header: /dens/, title: 'n', units: '10^20 m^-3'}))
 		end
 
@@ -92,6 +92,8 @@ class CodeRunner::Trinity
 
 	include TrinityGraphKits
 
+	# This is the hook that is called by CodeRunner, providing the
+	# graphkit with the given name and functions to the CodeRunner framework 
 	def graphkit(name, options)
 		[:t].each do |var|
 			#ep 'index', var
