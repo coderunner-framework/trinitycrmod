@@ -4,6 +4,10 @@ class CodeRunner::Trinity
 		def nt_prof_graphkit(options)
 			prof_graphkit(options.dup.absorb({outfile: :nt}))
 		end
+		# Graphs plotting quantities from the '.nt' file vs rho for a given t_index
+		def pwr_prof_graphkit(options)
+			prof_graphkit(options.dup.absorb({outfile: :pwr, radius_match: /2.*rad/}))
+		end
 		# Graphs plotting quantities from the '.fluxes' file vs rho for a given t_index
 		def fluxes_prof_graphkit(options)
 			prof_graphkit(options.absorb({outfile: :fluxes, exclude_perturbed_fluxes: true}))
@@ -25,7 +29,7 @@ class CodeRunner::Trinity
 				t_indices = [it]
 			end
 			array = t_indices.map{|i| get_2d_array_float(options[:outfile], options[:header], /1.*time/)[i].to_gslv}.mean.to_a
-			rho_array = t_indices.map{|i| get_2d_array_float(options[:outfile], /2.*radius/, /1.*time/)[i].to_gslv}.mean.to_a
+			rho_array = t_indices.map{|i| get_2d_array_float(options[:outfile], options[:radius_match]||/2.*radius/, /1.*time/)[i].to_gslv}.mean.to_a
 			if options[:exclude_perturbed_fluxes]
 				s = array.size
 				array = array.slice(0...nrad-1)

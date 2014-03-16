@@ -15,6 +15,10 @@ class CodeRunner
       def fluxes_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.fluxes', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
       end
+			# File ending in '.pwr': contains sources, alpha heating etc
+      def pwr_outfile
+        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.pwr', true, /\S+/, /(?:\#\s+)?\b\d+:.*?(?=\d:|\Z)/)
+      end
 			# File ending in '.nt': contains profiles: Ti, Te etc.
       def nt_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.nt', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
