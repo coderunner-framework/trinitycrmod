@@ -118,10 +118,19 @@ class CodeRunner
 			new_run.update_submission_parameters(new_run.parameter_hash.inspect, false) if new_run.parameter_hash 
 			new_run.naming_pars.delete(:restart_id)
 			new_run.generate_run_name
-			eputs 'Copying Restart files', ''
+			new_run.run_name += '_t'
+			eputs 'Copying Trinity Restart files', ''
 			system "ls #@directory"
 			['iternt', 'iterflx', 'tmp'].each do |ext|
 				FileUtils.cp("#@directory/#@run_name.#{ext}", "#{new_run.directory}/.")
+			end
+			if new_run.flux_option == "gs2" and @flux_option == "gs2"
+				for i in 0...n_flux_tubes
+					new_run.gs2_runs[i].directory = new_run.directory + "/flux_tube_#{i+1}"
+					FileUtils.makedirs(new_run.gs2_runs[i].directory)
+					gs2_runs[i].restart(new_run.gs2_runs[i])
+					#new_run.gs2_runs[i].run_name = new_run.run_name + (i+1).to_s
+				end
 			end
 			#@runner.submit(new_run)
 			new_run
@@ -150,10 +159,23 @@ class CodeRunner
 			if @flux_pars
 				@flux_pars.each do |par, val|
 					if @flux_option == "gs2"
+						gs2_parameter_hashes = {}
 						if val.kind_of? Hash
-							val.each{|n,v| gs2_runs[n].set(par, v)}
+							#val.each{|n,v| gs2_runs[n].set(par, v)}
+							val.each do |n,v| 
+								gs2_parameter_hashes[n] ||= {}
+								gs2_parameter_hashes[n][par] = v
+							end
 						else
-							gs2_runs.each{|r| r.set(par, val)}
+							for i in 0...n_flux_tubes
+							  #gs2_runs.each{|r| r.set(par, val)}
+								gs2_parameter_hashes[i] ||= {}
+								gs2_parameter_hashes[i][par] = val
+							end
+						end
+						for i in 0...n_flux_tubes
+							gs2_runs[i].parameter_hash = (gs2_parameter_hashes[i] || {}).inspect 
+							gs2_runs[i].update_submission_parameters(gs2_runs[i].parameter_hash, false) 
 						end
 					end
 				end
@@ -225,7 +247,12 @@ class CodeRunner
 				else
 					block = Proc.new{}
 				end
-				Dir.chdir(gs2run.directory){gs2run.generate_input_file(&block); gs2run.write_info}
+				#if @restart_id
+					#gs2run.restart_id = 
+				Dir.chdir(gs2run.directory) do 
+					gs2run.generate_input_file(&block)
+				 	gs2run.write_info
+				end
 
 				### Hack the input file so that gs2 gets the location of 
 				# the restart dir correctly within trinity
