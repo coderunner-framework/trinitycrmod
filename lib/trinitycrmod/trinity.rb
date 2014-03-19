@@ -120,7 +120,7 @@ class CodeRunner
 			new_run.generate_run_name
 			new_run.run_name += '_t'
 			eputs 'Copying Trinity Restart files', ''
-			system "ls #@directory"
+			#system "ls #@directory"
 			['iternt', 'iterflx', 'tmp'].each do |ext|
 				FileUtils.cp("#@directory/#@run_name.#{ext}", "#{new_run.directory}/.")
 			end
@@ -128,7 +128,9 @@ class CodeRunner
 				for i in 0...n_flux_tubes
 					new_run.gs2_runs[i].directory = new_run.directory + "/flux_tube_#{i+1}"
 					FileUtils.makedirs(new_run.gs2_runs[i].directory)
+					#ep ['gs2_runs[i] before', gs2_runs[i].nwrite, new_run.gs2_runs[i].nwrite, new_run.gs2_runs[i].parameter_hash]
 					gs2_runs[i].restart(new_run.gs2_runs[i])
+					#ep ['gs2_runs[i] after', gs2_runs[i].nwrite, new_run.gs2_runs[i].nwrite, new_run.gs2_runs[i].parameter_hash]
 					#new_run.gs2_runs[i].run_name = new_run.run_name + (i+1).to_s
 				end
 			end
@@ -157,9 +159,9 @@ class CodeRunner
 		def update_submission_parameters(parameters, start_from_defaults=true)
 			super(parameters, start_from_defaults)
 			if @flux_pars
+				gs2_parameter_hashes = {}
 				@flux_pars.each do |par, val|
 					if @flux_option == "gs2"
-						gs2_parameter_hashes = {}
 						if val.kind_of? Hash
 							#val.each{|n,v| gs2_runs[n].set(par, v)}
 							val.each do |n,v| 
@@ -230,6 +232,7 @@ class CodeRunner
 					#gs2run.instance_variable_set(var, gs2_run(i).instance_variable_get(var))
 				#end
 				gs2run = gs2_runs[i]
+				#ep ['gs2_runs[i] in generate', gs2_runs[i].nwrite]
 				#p ['i',i]
 				if @subfolders and @subfolders.fortran_true?
 					gs2run.directory = @directory + "/flux_tube_#{i+1}"
