@@ -24,6 +24,7 @@ class CodeRunner
 		require 'trinitycrmod/trinity_gs2'
 		require 'trinitycrmod/check_parameters'
 		require 'trinitycrmod/actual_parameter_values'
+		require 'trinitycrmod/chease'
 			
 		# Setup gs2 in case people are using it
 		CodeRunner.setup_run_class('gs2')
@@ -144,6 +145,7 @@ class CodeRunner
 				if @restart_id
 					@runner.run_list[@restart_id].restart(self)
 				end
+				setup_chease if uses_chease?
 				write_input_file
 				generate_gs2_input_files if @flux_option == "gs2"
 		end
