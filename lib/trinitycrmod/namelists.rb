@@ -227,6 +227,19 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :evolve_geometry=>
+      {:should_include=>"true",
+       :description=>
+        " if true, recalculate the magnetic equilibrium at each timestep",
+       :help=>
+        " if true, recalculate the magnetic equilibrium at each timestep",
+       :code_name=>:evolve_geometry,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
        :autoscanned_defaults=>[".false."]}}},
  :species=>
   {:description=>"",
