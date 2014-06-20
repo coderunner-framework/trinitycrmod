@@ -21,13 +21,13 @@ class CodeRunner
 		@variables += [:flux_pars]
 		require 'trinitycrmod/output_files'
 		require 'trinitycrmod/graphs'
-		require 'trinitycrmod/trinity_gs2'
 		require 'trinitycrmod/check_parameters'
 		require 'trinitycrmod/actual_parameter_values'
 		require 'trinitycrmod/chease'
 			
 		# Setup gs2 in case people are using it
 		CodeRunner.setup_run_class('gs2')
+		require 'trinitycrmod/trinity_gs2'
 
 		################################################
 		# Quantities that are read or determined by CodeRunner
@@ -299,7 +299,8 @@ class CodeRunner
 					if not component
 						#p "HEELO"
 					  #p [i, '3,', component, '4', @component_runs.size]
-						component = @component_runs[i] =  Gs2.new(@runner).create_component
+						component = @component_runs[i] =  Gs2::TrinityComponent.new(@runner, self).create_component
+						#component.instance_variable_set(:@output_file, output_file)
 					  #p [i, '3,', component, '4', @component_runs.size]
 						if i > 0 and @component_runs[i-1]
 							component.rcp.variables.each do |var|
@@ -328,6 +329,7 @@ class CodeRunner
 						Dir.chdir(compdir){component.process_directory} if FileTest.exist? compdir
 					#}
 					component.component_runs = []
+					component.trinity_run = self
 					#@component_runs.push component
 					component.real_id = @id
 					#@gs2_run_list[i] = component

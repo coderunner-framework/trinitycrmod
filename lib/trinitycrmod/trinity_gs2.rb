@@ -7,6 +7,40 @@
 	#end
 #end
 class CodeRunner
+	class Gs2
+		class TrinityComponent < Gs2
+			attr_accessor :trinity_run
+			def initialize(runner, trinity_run)
+				super(runner)
+				@trinity_run = trinity_run
+				self
+			end
+			def output_file
+				#@output_file ||= '../' +  self.class.to_s
+				'../' + @trinity_run.output_file
+				#'aa'
+			end
+			def error_file
+				'../' + @trinity_run.error_file
+				#'aa'
+			end
+			def dup
+				return self.class.new(@runner, @trinity_run).learn_from(self)
+			end
+			def save
+				#p ['output_file', output_file]
+				#p ['ancestors', self.class.ancestors]
+				trinrun, @trinity_run = @trinity_run, nil
+				component_runs.each{|cr| cr.trinity_run = nil}
+				#@trinity_run = nil
+				#@output_file = nil
+				#GC.start
+				#p self.instance_variables.find_all{|v| instance_variable_get(v).class.to_s =~  /NumRu::NetCDF/}
+				super
+				@trinity_run = trinrun
+			end
+		end
+	end
 	class Trinity
 
 		# This function creates a new Trinity defaults file, with Trinity parameters taken from 
