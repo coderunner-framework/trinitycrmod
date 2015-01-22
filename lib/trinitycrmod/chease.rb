@@ -4,7 +4,7 @@ class CodeRunner::Trinity
 	end
 	def setup_chease
 		ep "Setting up chease files..."
-		FileUtils.mkdir('chease')
+		FileUtils.mkdir('chease') unless FileTest.exist? 'chease'
 		origfile = @runner.root_folder + '/ogyropsi.dat'
 		FileUtils.cp(origfile, 'chease/ogyropsi.dat') if FileTest.exist? origfile
 	end

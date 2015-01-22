@@ -202,7 +202,7 @@ class CodeRunner
 		end
 
 		# The number of separate flux tube results needed for the jacobian
-		def n_flux_tubes
+		def n_flux_tubes_jac
 			d1 = dflx_stencil_actual - 1
 			ngrads =d1 * case @grad_option
 										when "tigrad", "ngrad", "lgrad"
@@ -224,6 +224,14 @@ class CodeRunner
 			#p 'nraaad', @nrad
 			(@nrad-1) * njac
 		end
+    def n_flux_tubes
+      if @ncc_calibrate and @ncc_calibrate > 1
+        n_flux_tubes_jac + @ncc_calibrate
+      else
+        n_flux_tubes_jac
+      end
+    end
+
 		# Writes the gs2 input files, creating separate subfolders 
 		# for them if @subfolders is .true.
 		def generate_gs2_input_files
@@ -236,16 +244,26 @@ class CodeRunner
 				gs2run = gs2_runs[i]
 				#ep ['gs2_runs[i] in generate', gs2_runs[i].nwrite]
 				#p ['i',i]
+        if i >= n_flux_tubes
+          jn = i - n_flux_tubes + 1
+          run_name = "calibrate_" + @run_name + (jn).to_s
+          folder = "calibrate_#{jn}"
+        else
+          jn = i + 1
+          run_name = @run_name + (jn).to_s
+          folder = "flux_tube_#{jn}"
+        end 
+
 				if @subfolders and @subfolders.fortran_true?
-					gs2run.directory = @directory + "/flux_tube_#{i+1}"
+					gs2run.directory = @directory + "/" + folder
 					FileUtils.makedirs(gs2run.directory)
-					gs2run.relative_directory = @relative_directory + "/flux_tube_#{i+1}"
+					gs2run.relative_directory = @relative_directory + "/" + folder
 					gs2run.restart_dir = gs2run.directory + "/nc"
 				else
 					gs2run.directory = @directory
 					gs2run.relative_directory = @relative_directory
 				end
-				gs2run.run_name = @run_name + (i+1).to_s
+				gs2run.run_name = run_name
 				gs2run.nprocs = @nprocs
 				if i==0
 					block = Proc.new{ingen}
@@ -264,7 +282,7 @@ class CodeRunner
 				if @subfolders and @subfolders.fortran_true?
 					infile = gs2run.directory + "/" + gs2run.run_name + ".in"
 					text = File.read(infile)
-					File.open(infile, 'w'){|f| f.puts text.sub(/restart_dir\s*=\s*"nc"/, "restart_dir = \"flux_tube_#{i+1}/nc\"")}
+					File.open(infile, 'w'){|f| f.puts text.sub(/restart_dir\s*=\s*"nc"/, "restart_dir = \"#{folder}/nc\"")}
 				end
 			end
 		end
