@@ -214,7 +214,7 @@ class CodeRunner
 						str+="_#{par}_#{send(par).to_s[0...8]}"
 					end
 				end
-				@run_name = @run_name.gsub(/\s+/, "_").gsub(/[\/{}]/, '') + "_id_#@id"
+				@run_name = @run_name.gsub(/\s+/, "_").gsub(/[\/{}"><]/, '') + "_id_#@id"
 		end
 
 		# The number of separate flux tube results needed for the jacobian
