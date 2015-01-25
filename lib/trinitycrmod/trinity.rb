@@ -114,7 +114,8 @@ class CodeRunner
 			new_run.iterflx_file = @run_name + ".iterflx"
 			new_run.init_file = @run_name + ".tmp"
 			@runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs 
-			raise "Restart must be on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}" if !new_run.nprocs or new_run.nprocs != @nprocs
+      # This is unnecessary for single restart file.
+			raise "Restart must be on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}" if not new_run.no_restart_gs2 and (!new_run.nprocs or new_run.nprocs != @nprocs)
       raise "Restart cannot have a different sized jacobian: new is #{new_run.n_flux_tubes_jac} and old is #{n_flux_tubes_jac}" unless new_run.n_flux_tubes_jac == n_flux_tubes_jac
 		# 	@runner.parameters.each{|var, value| new_run.set(var,value)} if @runner.parameters
 		#   ep @runner.parameters
