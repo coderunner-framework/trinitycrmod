@@ -157,11 +157,11 @@ class CodeRunner
 		#  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
 		def generate_input_file
 			  @run_name += "_t"
-				check_parameters
 				if @restart_id
 					@runner.run_list[@restart_id].restart(self)
 				end
 				setup_chease if uses_chease?
+				check_parameters
 				write_input_file
 				generate_gs2_input_files if @flux_option == "gs2"
 		end
@@ -283,7 +283,7 @@ class CodeRunner
 				gs2run.run_name = run_name
 				gs2run.nprocs = @nprocs
 				if i==0
-					block = Proc.new{ingen}
+					block = Proc.new{check_parameters}
 				else
 					block = Proc.new{}
 				end
