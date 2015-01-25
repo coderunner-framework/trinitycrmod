@@ -62,28 +62,36 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{flux_pars: {nstep: 50}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 1, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 2, flux_pars: {nstep: 10}}')
+			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 3, flux_pars: {nstep: 10}, neval_calibrate: 6, ncc_calibrate: 1}')
+			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{no_restart_gs2: true, restart_id: 4, flux_pars: {nstep: 10}, neval_calibrate: 6, ncc_calibrate: 1}')
 			CodeRunner.status(Y: 'test/gs2_42982')
+      STDIN.gets
 		  runs = @runner.run_list
 			assert_equal(:Complete, runs[1].status)
 			assert_equal(:Complete, runs[2].status)
 			assert_equal(1, runs[2].gs2_runs[1].nwrite)
 			assert_equal(1, runs[3].gs2_runs[1].nwrite)
 			assert_equal(runs[1].list(:t).values.max, runs[2].list(:t).values.min)
+			assert_equal(runs[3].list(:t).values.max, runs[4].list(:t).values.min)
 		  assert_equal(runs[2].gs2_runs[3].gsl_vector('phi2tot_over_time')[-1].round(2), runs[3].gs2_runs[3].gsl_vector('phi2tot_over_time')[0].round(2))
+      assert_equal(9, runs[5].gs2_runs.size)
+      assert_equal("noise", runs[5].gs2_runs[8].ginit_option)
+      testrun=6
 
 		else
 			CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '8')
+      testrun=3
 		end
 	  CodeRunner.submit(Y: 'test/gs2_42982', X: '/dev/null', n: '16', p: '{grad_option: "ntgrads", flux_pars: {nx: 43, delt: {2=>0.003}}}')
 		@runner.use_component = :component
 		@runner.recalc_all = true
 		@runner.update
 		#CodeRunner.status(Y: 'test/gs2_42982', h: :component, A: true)
-		assert_equal(0.003, @runner.run_list[4].gs2_runs[2].delt)
-		assert_equal(0.01, @runner.run_list[4].gs2_runs[1].delt)
-		assert_equal(43, @runner.run_list[4].gs2_runs[1].nx)
-		assert_equal(16, @runner.run_list[4].gs2_runs.size)
+		assert_equal(0.003, @runner.run_list[testrun].gs2_runs[2].delt)
+		assert_equal(0.01, @runner.run_list[testrun].gs2_runs[1].delt)
+		assert_equal(43, @runner.run_list[testrun].gs2_runs[1].nx)
+		assert_equal(16, @runner.run_list[testrun].gs2_runs.size)
 		assert_equal(8, @runner.run_list[1].gs2_runs.size)
 	end
 	def teardown 

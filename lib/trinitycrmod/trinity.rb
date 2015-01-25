@@ -54,7 +54,7 @@ class CodeRunner
 
 		@code_long="Trinity Turbulent Transport Solver"
 
-		@run_info=[:time, :is_a_restart, :restart_id, :restart_run_name, :completed_timesteps, :percent_complete]
+		@run_info=[:time, :is_a_restart, :restart_id, :restart_run_name, :completed_timesteps, :percent_complete, :no_restart_gs2]
 
 		@uses_mpi = true
 
@@ -97,7 +97,10 @@ class CodeRunner
 			(rcp.variables).each{|v| new_run.set(v, send(v)) if send(v)}
 			if @flux_option == "gs2"
 				gs2_runs.each_with_index do |run, i|
-					CodeRunner::Gs2.rcp.variables.each{|v| new_run.gs2_runs[i].set(v, run.send(v)) if run.send(v)}
+					CodeRunner::Gs2.rcp.variables.each{|v| 
+            next if [:ginit_option, :delt_option].include? v and new_run.no_restart_gs2
+            new_run.gs2_runs[i].set(v, run.send(v)) if run.send(v)
+          }
 				end
 			end
 			@naming_pars.delete(:preamble)
@@ -112,6 +115,7 @@ class CodeRunner
 			new_run.init_file = @run_name + ".tmp"
 			@runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs 
 			raise "Restart must be on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}" if !new_run.nprocs or new_run.nprocs != @nprocs
+      raise "Restart cannot have a different sized jacobian: new is #{new_run.n_flux_tubes_jac} and old is #{n_flux_tubes_jac}" unless new_run.n_flux_tubes_jac == n_flux_tubes_jac
 		# 	@runner.parameters.each{|var, value| new_run.set(var,value)} if @runner.parameters
 		#   ep @runner.parameters
 			new_run.run_name = nil
@@ -125,9 +129,20 @@ class CodeRunner
 			['iternt', 'iterflx', 'tmp'].each do |ext|
 				FileUtils.cp("#@directory/#@run_name.#{ext}", "#{new_run.directory}/.")
 			end
-			if new_run.flux_option == "gs2" and @flux_option == "gs2"
+			if new_run.flux_option == "gs2" and @flux_option == "gs2" and not new_run.no_restart_gs2
 				for i in 0...n_flux_tubes
-					new_run.gs2_runs[i].directory = new_run.directory + "/flux_tube_#{i+1}"
+          break if i >= new_run.n_flux_tubes
+          if i >= n_flux_tubes_jac
+            jn = i - n_flux_tubes_jac + 1
+            #run_name = "calibrate_" + @run_name + (jn).to_s
+            folder = "calibrate_#{jn}"
+          else
+            jn = i + 1
+            #run_name = @run_name + (jn).to_s
+            folder = "flux_tube_#{jn}"
+          end 
+
+					new_run.gs2_runs[i].directory = new_run.directory + "/#{folder}"
 					FileUtils.makedirs(new_run.gs2_runs[i].directory)
 					#ep ['gs2_runs[i] before', gs2_runs[i].nwrite, new_run.gs2_runs[i].nwrite, new_run.gs2_runs[i].parameter_hash]
 					gs2_runs[i].restart(new_run.gs2_runs[i])
@@ -225,7 +240,8 @@ class CodeRunner
 			(@nrad-1) * njac
 		end
     def n_flux_tubes
-      if @ncc_calibrate and @ncc_calibrate > 1
+      if @neval_calibrate and @neval_calibrate > 0
+        raise "neval_calibrate set but ncc_calibrate not set" unless @ncc_calibrate
         n_flux_tubes_jac + @ncc_calibrate
       else
         n_flux_tubes_jac
@@ -244,8 +260,8 @@ class CodeRunner
 				gs2run = gs2_runs[i]
 				#ep ['gs2_runs[i] in generate', gs2_runs[i].nwrite]
 				#p ['i',i]
-        if i >= n_flux_tubes
-          jn = i - n_flux_tubes + 1
+        if i >= n_flux_tubes_jac
+          jn = i - n_flux_tubes_jac + 1
           run_name = "calibrate_" + @run_name + (jn).to_s
           folder = "calibrate_#{jn}"
         else
@@ -310,6 +326,9 @@ class CodeRunner
 			@component_runs ||= []
 			if @flux_option == "gs2"
 			#puts "HERE"
+      #puts "generate_component_runs", @component_runs.size, @runner.run_list.size, caller.to_a.slice(0..9)
+      #puts @component_runs[1].ginit_option if @component_runs.size > 0
+      #STDIN.gets
 		  
 				for i in 0...n_flux_tubes
 					component = @component_runs[i] 

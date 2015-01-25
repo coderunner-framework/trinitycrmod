@@ -14,7 +14,7 @@ class CodeRunner::Trinity
 
 	def check_parallelisation
 		error("nrad must be explicitly specified") unless @nrad
-		error("Number of jobs: #{n_flux_tubes} must evenly divide the number of processors: #{actual_number_of_processors} when fork_flag is .true.") if fork_flag_actual.fortran_true? and not actual_number_of_processors%n_flux_tubes == 0
+		error("Number of jobs: #{n_flux_tubes_jac} must evenly divide the number of processors: #{actual_number_of_processors} when fork_flag is .true.") if fork_flag_actual.fortran_true? and not actual_number_of_processors%n_flux_tubes_jac == 0
 
 	end
 
