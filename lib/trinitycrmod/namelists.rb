@@ -857,36 +857,38 @@
        :autoscanned_defaults=>[1.0]},
      :ncc_calibrate=>
       {:should_include=>"true",
-       :description=>"Number of calibration jobs.",
-       :help=>
-        "Number of calibration jobs. Minimum 1, maximum number of cell centers. Only applies when neval_calibrate > 0.",
+       :description=>
+        " Number of flux tubes to use for calibration of reduced model",
+       :help=>" Number of flux tubes to use for calibration of reduced model",
        :code_name=>:ncc_calibrate,
        :must_pass=>
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
-       :type=>:Integer},
+       :type=>:Integer,
+       :autoscanned_defaults=>[1]},
      :neval_calibrate=>
       {:should_include=>"true",
-       :description=>"Number of flux evaluations between recalibrations.",
+       :description=>
+        " Num. calls to get_fluxes between calibrations (set positive to activate)",
        :help=>
-        "Number of flux evaluations between recalibrations. Set > 0 to trigger calibration mode.",
+        " Num. calls to get_fluxes between calibrations (set positive to activate)",
        :code_name=>:neval_calibrate,
        :must_pass=>
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
-       :type=>:Integer},
+       :type=>:Integer,
+       :autoscanned_defaults=>[-1]},
      :match_gs2_species=>
       {:should_include=>"true",
-       :description=>
-        "If true, try to match gs2 species to trinity species by examining species properties.",
-       :help=>
-        "If true, try to match gs2 species to trinity species by examining species properties. If false, gs2 species must be in the same order as trinity species.",
+       :description=>" If true, try to match gs2 species to ",
+       :help=>" If true, try to match gs2 species to ",
        :code_name=>:match_gs2_species,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
@@ -1096,27 +1098,38 @@
        :autoscanned_defaults=>["nproc/njobs"]},
      :dyn_load_balance=>
       {:should_include=>"true",
-       :description=>"Activate dynamic load balancing for gs2.",
-       :help=>
-        "Activate dynamic load balancing for gs2. Jobs which fail to converge are given successively larger proportions of processors.",
+       :description=>
+        " set to true to dynamically reallocate processes at runtime",
+       :help=>" set to true to dynamically reallocate processes at runtime",
        :code_name=>:dyn_load_balance,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false.", ".true."]},
      :peaking_factor=>
       {:should_include=>"true",
        :description=>
-        "Experimental. Enhance all gradients. Negative off, 1.0 no change.",
+        " If >0 then changes peaking of profiles (1.0 leaves profs unchanged)",
        :help=>
-        "Experimental. Enhance the peakedness, i.e. the gradient, of all profiles. Negative off, 1.0 no change.",
+        " If >0 then changes peaking of profiles (1.0 leaves profs unchanged)",
        :code_name=>:peaking_factor,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}},
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]},
+     :itercalib_file=>
+      {:should_include=>"true",
+       :description=>"Name of file with calibration restart information.",
+       :help=>"Name of file with calibration restart information.",
+       :code_name=>:itercalib_file,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String}}},
  :sources=>
   {:description=>"",
    :should_include=>"true",

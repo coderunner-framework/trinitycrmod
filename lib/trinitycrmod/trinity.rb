@@ -112,6 +112,7 @@ class CodeRunner
 			new_run.init_option = "restart"
 			new_run.iternt_file = @run_name + ".iternt"
 			new_run.iterflx_file = @run_name + ".iterflx"
+			new_run.itercalib_file = @run_name + ".itercalib"
 			new_run.init_file = @run_name + ".tmp"
 			@runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs 
       # This is unnecessary for single restart file.
@@ -127,7 +128,8 @@ class CodeRunner
 			new_run.run_name += '_t'
 			eputs 'Copying Trinity Restart files', ''
 			#system "ls #@directory"
-			['iternt', 'iterflx', 'tmp'].each do |ext|
+			['iternt', 'iterflx', 'tmp', 'itercalib'].each do |ext|
+        next if ext=='itercalib' and not FileTest.exist?("#@directory/#@run_name.#{ext}")
 				FileUtils.cp("#@directory/#@run_name.#{ext}", "#{new_run.directory}/.")
 			end
 			if new_run.flux_option == "gs2" and @flux_option == "gs2" and not new_run.no_restart_gs2
