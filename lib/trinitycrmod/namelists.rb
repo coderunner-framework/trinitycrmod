@@ -888,7 +888,17 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]}}},
+       :autoscanned_defaults=>[".true."]},
+     :calibrate_abs=>
+      {:should_include=>"true",
+       :description=>"Enforce positive calibration factor.",
+       :help=>"Enforce positive calibration factor.",
+       :code_name=>:calibrate_abs,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
@@ -1123,13 +1133,14 @@
        :autoscanned_defaults=>[-1.0]},
      :itercalib_file=>
       {:should_include=>"true",
-       :description=>"Name of file with calibration restart information.",
-       :help=>"Name of file with calibration restart information.",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:itercalib_file,
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
-       :type=>:String}}},
+       :type=>:String,
+       :autoscanned_defaults=>["restart.itercalib"]}}},
  :sources=>
   {:description=>"",
    :should_include=>"true",
