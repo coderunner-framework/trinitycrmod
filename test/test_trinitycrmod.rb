@@ -62,10 +62,10 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{flux_pars: {nstep: 50}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 1, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 2, flux_pars: {nstep: 10}}')
-			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 3, flux_pars: {nstep: 10}, neval_calibrate: 6, ncc_calibrate: 1}')
-			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{no_restart_gs2: true, restart_id: 4, flux_pars: {nstep: 10}, neval_calibrate: 6, ncc_calibrate: 1}')
+			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 3, flux_pars: {nstep: 10, nwrite: 1}, neval_calibrate: 6, ncc_calibrate: 1}')
+			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{no_restart_gs2: true, restart_id: 4, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}, neval_calibrate: 6, ncc_calibrate: 1}')
 			CodeRunner.status(Y: 'test/gs2_42982')
-      STDIN.gets
+      #STDIN.gets
 		  runs = @runner.run_list
 			assert_equal(:Complete, runs[1].status)
 			assert_equal(:Complete, runs[2].status)
@@ -104,6 +104,7 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 			Dir.chdir('test/gs2_42982'){system("tar -czf v.tgz v/")}
 			FileUtils.mv('test/gs2_42982/v.tgz', 'test/gs2_42982_results/.')
 		end
+    #STDIN.gets
 		FileUtils.rm_r('test/gs2_42982/v/')
 	end
 end

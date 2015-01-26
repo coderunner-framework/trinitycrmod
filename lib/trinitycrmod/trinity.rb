@@ -133,15 +133,17 @@ class CodeRunner
 			if new_run.flux_option == "gs2" and @flux_option == "gs2" and not new_run.no_restart_gs2
 				for i in 0...n_flux_tubes
           break if i >= new_run.n_flux_tubes
-          if i >= n_flux_tubes_jac
-            jn = i - n_flux_tubes_jac + 1
-            #run_name = "calibrate_" + @run_name + (jn).to_s
-            folder = "calibrate_#{jn}"
-          else
-            jn = i + 1
-            #run_name = @run_name + (jn).to_s
-            folder = "flux_tube_#{jn}"
-          end 
+          #if i >= n_flux_tubes_jac
+            #jn = i - n_flux_tubes_jac + 1
+            ##run_name = "calibrate_" + @run_name + (jn).to_s
+            #folder = "calibrate_#{jn}"
+          #else
+            #jn = i + 1
+            ##run_name = @run_name + (jn).to_s
+            #folder = "flux_tube_#{jn}"
+          #end 
+          #
+          folder = gs2_folder_name(i)
 
 					new_run.gs2_runs[i].directory = new_run.directory + "/#{folder}"
 					FileUtils.makedirs(new_run.gs2_runs[i].directory)
@@ -261,16 +263,19 @@ class CodeRunner
 				gs2run = gs2_runs[i]
 				#ep ['gs2_runs[i] in generate', gs2_runs[i].nwrite]
 				#p ['i',i]
-        if i >= n_flux_tubes_jac
-          jn = i - n_flux_tubes_jac + 1
-          run_name = "calibrate_" + @run_name + (jn).to_s
-          folder = "calibrate_#{jn}"
-        else
-          jn = i + 1
-          run_name = @run_name + (jn).to_s
-          folder = "flux_tube_#{jn}"
-        end 
+        #if i >= n_flux_tubes_jac
+          #jn = i - n_flux_tubes_jac + 1
+          #run_name = "calibrate_" + @run_name + (jn).to_s
+          #folder = "calibrate_#{jn}"
+        #else
+          #jn = i + 1
+          #run_name = @run_name + (jn).to_s
+          #folder = "flux_tube_#{jn}"
+        #end 
 
+        folder = gs2_folder_name(i)
+        run_name = gs2_run_name(i)
+        
 				if @subfolders and @subfolders.fortran_true?
 					gs2run.directory = @directory + "/" + folder
 					FileUtils.makedirs(gs2run.directory)
@@ -363,7 +368,7 @@ class CodeRunner
 					#component.status = @status
 			#p ["HERE2", @component_runs.size, @component_runs[i]]
 					#Dir.chdir(@directory) {
-						compdir = "flux_tube_#{i+1}"
+						compdir = gs2_folder_name(i) #  "flux_tube_#{i+1}"
 						Dir.chdir(compdir){component.process_directory} if FileTest.exist? compdir
 					#}
 					component.component_runs = []

@@ -125,6 +125,27 @@ EOF2
 		def flux_gs2?
 			@flux_option == "gs2"
 		end
+
+    def gs2_run_name(i)
+      if i >= n_flux_tubes_jac
+        jn = i - n_flux_tubes_jac + 1
+        run_name = "calibrate_" + @run_name + (jn).to_s
+      else
+        jn = i + 1
+        run_name = @run_name + (jn).to_s
+      end 
+      run_name
+    end
+    def gs2_folder_name(i)
+      if i >= n_flux_tubes_jac
+        jn = i - n_flux_tubes_jac + 1
+        folder = "calibrate_#{jn}"
+      else
+        jn = i + 1
+        folder = "flux_tube_#{jn}"
+      end 
+      folder
+    end
 	end
 
 end
