@@ -187,8 +187,19 @@ class CodeRunner
 						if val.kind_of? Hash
 							#val.each{|n,v| gs2_runs[n].set(par, v)}
 							val.each do |n,v| 
-								gs2_parameter_hashes[n] ||= {}
-								gs2_parameter_hashes[n][par] = v
+                if n == :jac
+                  range =  0...n_flux_tubes_jac
+                elsif n == :calib
+                  range =  n_flux_tubes_jac...n_flux_tubes
+                else
+                  range = n..n
+                end
+                for i in range
+                  gs2_parameter_hashes[i] ||= {}
+                  gs2_parameter_hashes[i][par] = v
+                end
+								#gs2_parameter_hashes[n] ||= {}
+								#gs2_parameter_hashes[n][par] = v
 							end
 						else
 							for i in 0...n_flux_tubes
@@ -218,7 +229,7 @@ class CodeRunner
 						str+="_#{par}_#{send(par).to_s[0...8]}"
 					end
 				end
-				@run_name = @run_name.gsub(/\s+/, "_").gsub(/[\/{}"><]/, '') + "_id_#@id"
+				@run_name = @run_name.gsub(/\s+/, "_").gsub(/[\/{}"><:=]/, '') + "_id_#@id"
 		end
 
 		# The number of separate flux tube results needed for the jacobian

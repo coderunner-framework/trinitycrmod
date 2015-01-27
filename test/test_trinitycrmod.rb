@@ -62,7 +62,7 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{flux_pars: {nstep: 50}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 1, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 2, flux_pars: {nstep: 10}}')
-			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 3, flux_pars: {nstep: 10, nwrite: 1}, neval_calibrate: 6, ncc_calibrate: 1}')
+			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 3, flux_pars: {nstep: 10, nwrite: 1, tprim_1: {calib: 5.0, jac: 9.0}}, neval_calibrate: 6, ncc_calibrate: 1}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{no_restart_gs2: true, restart_id: 4, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}, neval_calibrate: 6, ncc_calibrate: 1}')
 			CodeRunner.status(Y: 'test/gs2_42982')
       STDIN.gets
@@ -71,6 +71,8 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 			assert_equal(:Complete, runs[2].status)
 			assert_equal(1, runs[2].gs2_runs[1].nwrite)
 			assert_equal(1, runs[3].gs2_runs[1].nwrite)
+			assert_equal(9.0, runs[4].gs2_runs[1].tprim_1)
+			assert_equal(5.0, runs[4].gs2_runs[8].tprim_1)
 			assert_equal(runs[1].list(:t).values.max, runs[2].list(:t).values.min)
 			assert_equal(runs[3].list(:t).values.max, runs[4].list(:t).values.min)
 		  assert_equal(runs[2].gs2_runs[3].gsl_vector('phi2tot_over_time')[-1].round(2), runs[3].gs2_runs[3].gsl_vector('phi2tot_over_time')[0].round(2))
