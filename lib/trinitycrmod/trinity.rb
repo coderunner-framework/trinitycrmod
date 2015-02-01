@@ -94,12 +94,12 @@ class CodeRunner
 		# correctly
 		def restart(new_run)
 			#new_run = self.dup
-			(rcp.variables).each{|v| new_run.set(v, send(v)) if send(v)}
+			(rcp.variables).each{|v| new_run.set(v, send(v)) if send(v) or new_run.send(v)}
 			if @flux_option == "gs2"
 				gs2_runs.each_with_index do |run, i|
 					CodeRunner::Gs2.rcp.variables.each{|v| 
             next if [:ginit_option, :delt_option].include? v and new_run.no_restart_gs2
-            new_run.gs2_runs[i].set(v, run.send(v)) if run.send(v)
+            new_run.gs2_runs[i].set(v, run.send(v)) if run.send(v) or new_run.gs2_runs[i].send(v)
           }
 				end
 			end
