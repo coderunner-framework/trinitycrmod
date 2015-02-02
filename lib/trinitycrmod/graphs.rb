@@ -96,6 +96,32 @@ class CodeRunner::Trinity
 
 	include TrinityGraphKits
 
+  module TrinityMultiKits
+    def profiles_graphkit(options)
+      kit = GraphKit::MultiKit.new(
+        [
+          ion_temp_prof_graphkit(options),
+          eln_temp_prof_graphkit(options),
+          dens_prof_graphkit(options),
+          ang_mom_prof_graphkit(options)
+      ]
+      )
+      kit.each{|k| k.title = nil}
+      if options[:horizontal]
+        kit.slice(0..2).each{|k| k.xlabel = nil; k.gp.xtics = "format ''"}
+        kit[3].gp.xtics = 'format "%2.1f"'
+      else
+        kit.values_at(0,2).each{|k| k.xlabel = nil; k.gp.xtics = "format ''"}
+        kit.gp.multiplot = "layout 2,2"
+        kit.gp.key = "tmargin"
+      end
+      kit
+
+    end
+  end
+
+  include TrinityMultiKits
+
 	# This is the hook that is called by CodeRunner, providing the
 	# graphkit with the given name and functions to the CodeRunner framework 
 	def graphkit(name, options)
@@ -120,7 +146,8 @@ class CodeRunner::Trinity
 				options[var+:_index] = list(var).keys.max
 			end
 		end
-		if meth = TrinityGraphKits.instance_methods.find{|m| m.to_s == name + '_graphkit'}
+		if (meth = TrinityGraphKits.instance_methods.find{|m| m.to_s == name + '_graphkit'} or 
+        meth = TrinityMultiKits.instance_methods.find{|m| m.to_s == name + '_graphkit'})
 			return send(meth, options)
 		else
 			raise	"GraphKit not found: #{name}"
