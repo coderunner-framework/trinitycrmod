@@ -63,9 +63,10 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 1, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 2, flux_pars: {nstep: 10}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 3, flux_pars: {nstep: 10, nwrite: 1, tprim_1: {calib: 5.0, jac: 9.0}}, neval_calibrate: 6, ncc_calibrate: 1}')
+      #STDIN.gets
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{no_restart_gs2: true, restart_id: 4, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}, neval_calibrate: 6, ncc_calibrate: 1}')
 			CodeRunner.status(Y: 'test/gs2_42982')
-      STDIN.gets
+      #STDIN.gets
 		  runs = @runner.run_list
 			assert_equal(:Complete, runs[1].status)
 			assert_equal(:Complete, runs[2].status)
