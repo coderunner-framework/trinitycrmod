@@ -62,13 +62,13 @@ class CodeRunner
 			CodeRunner::Gs2.make_new_defaults_file(name + '_gs2tmp', gs2_input_file)
 
 			File.open(defaults_filename, 'a'){|file| file.puts <<EOF2
-@set_flux_defaults_proc = Proc.new do
+@set_flux_defaults_procs.push(Proc.new do
 gs2_runs.each do |run|
 run.instance_eval do
 #{File.read(tmp_filename).gsub(/\A|\n/, "\n  ")}
 end
 end
-end
+end)
 
 
 EOF2

@@ -182,10 +182,11 @@ class CodeRunner
     #  will set nx for all runs to be 43, and delt for run 1 to 0.01, delt
     #  for run 2 to be 0.05
     def update_submission_parameters(parameters, start_from_defaults=true)
+      @set_flux_defaults_procs ||= []
       super(parameters, start_from_defaults)
       if @flux_option == "gs2"
-        raise "set_flux_defaults_proc not defined" unless @set_flux_defaults_proc
-        @set_flux_defaults_proc.call
+        raise "No set_flux_defaults_procs defined" unless @set_flux_defaults_procs.size > 0
+        @set_flux_defaults_procs.each{|prc| prc.call}
         gs2_parameter_hashes = {}
         if @flux_pars
           @flux_pars.each do |par, val|
