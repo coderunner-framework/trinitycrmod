@@ -154,6 +154,14 @@ class CodeRunner
           FileUtils.makedirs(new_run.gs2_runs[i].directory)
           #ep ['gs2_runs[i] before', gs2_runs[i].nwrite, new_run.gs2_runs[i].nwrite, new_run.gs2_runs[i].parameter_hash]
           gs2_runs[i].restart(new_run.gs2_runs[i])
+          if new_run.neval_calibrate and new_run.neval_calibrate > 0 and 
+            new_run.gs2_runs[i].nonlinear_mode == "off" 
+
+            new_run.gs2_runs[i].init_option = "noise"
+            new_run.gs2_runs[i].delt_option = "default"
+            new_run.gs2_runs[i].is_a_restart = false
+            new_run.gs2_runs[i].restart_id = nil
+          end
           #ep ['gs2_runs[i] after', gs2_runs[i].nwrite, new_run.gs2_runs[i].nwrite, new_run.gs2_runs[i].parameter_hash]
           #new_run.gs2_runs[i].run_name = new_run.run_name + (i+1).to_s
         end
