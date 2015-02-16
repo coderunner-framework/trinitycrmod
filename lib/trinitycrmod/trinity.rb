@@ -157,7 +157,7 @@ class CodeRunner
           if new_run.neval_calibrate and new_run.neval_calibrate > 0 and 
             new_run.gs2_runs[i].nonlinear_mode == "off" 
 
-            new_run.gs2_runs[i].init_option = "noise"
+            new_run.gs2_runs[i].ginit_option = "noise"
             new_run.gs2_runs[i].delt_option = "default"
             new_run.gs2_runs[i].is_a_restart = false
             new_run.gs2_runs[i].restart_id = nil
