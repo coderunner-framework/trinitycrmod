@@ -891,14 +891,26 @@
        :autoscanned_defaults=>[".true."]},
      :calibrate_abs=>
       {:should_include=>"true",
-       :description=>"Enforce positive calibration factor.",
-       :help=>"Enforce positive calibration factor.",
+       :description=>" If true calibration factor is forced positive ",
+       :help=>" If true calibration factor is forced positive ",
        :code_name=>:calibrate_abs,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
+     :calib_option=>
+      {:should_include=>"true",
+       :description=>
+        "Sets interpolation of the calibration factor. 'default', 'piecewise_linear', or 'spline'.",
+       :help=>
+        "Which interpolation method to use for the calibration factor. 'default', 'piecewise_linear', or 'spline'.",
+       :code_name=>:calib_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
