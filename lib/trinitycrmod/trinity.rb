@@ -336,6 +336,20 @@ class CodeRunner
       end
     end
 
+    def watch_calibration_status
+      if @flux_option == "gs2"
+        command = gs2_runs.map{|r| 
+          FileTest.exist?(fn="#{r.directory}/#{r.run_name}.out.nc") ?
+          "ncdump #{fn} | grep UNLIM" : nil
+        }.compact
+        command = "watch '#{command.join(' && ')}'"
+        puts command
+        system command
+      else
+        raise "watch_calibration_status only implemented for gs2"
+      end
+    end
+
     def vim_output
       system "vim -Ro #{output_file} #{error_file} #@directory/#@run_name.error #@directory/#@run_name.out "
     end
