@@ -179,8 +179,9 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
 		assert_equal(kit.data[0].y.data[0], 0.2412)
 
 	  kit = @runner.run_list[1].graphkit('profiles', {t_index: 2})
+	  kit = @runner.run_list[1].graphkit('integrated_profiles', {t_index: 2})
 
-		#kit.gnuplot
+		kit.gnuplot
 	end
 
 	def test_average_graphs

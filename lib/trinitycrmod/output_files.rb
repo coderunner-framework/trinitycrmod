@@ -23,6 +23,10 @@ class CodeRunner
       def nt_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.nt', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
       end
+			# File ending in '.geo': contains geometric information
+      def geo_outfile
+        TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.geo', true, /\S+/, /(?:\#\s+)?\d+:\D*?(?=\d:|\d\d:|\Z)/)
+      end
 			# File ending in '.pbalance': contains fluxes and sources
       def pbalance_outfile
         TextDataTools::Column::DataFile.new(@directory + '/' + @run_name + '.pbalance', true, /\S+/, /(?:\#\s+)?\d:.*?(?=\d:|\Z)/)
@@ -49,6 +53,12 @@ class CodeRunner
 			cache[:array_2d] = {} unless [:Complete, :Failed].include? @status
 			cache[:array_2d] ||= {}
 			cache[:array_2d][[outfile, column_header, index_header]] ||= send(outfile + :_outfile).get_2d_array_float(column_header, index_header)
+		end
+
+		def get_1d_array_float(outfile, column_header)
+			cache[:array_1d] = {} unless [:Complete, :Failed].include? @status
+			cache[:array_1d] ||= {}
+			cache[:array_1d][[outfile, column_header]] ||= send(outfile + :_outfile).get_1d_array_float(column_header)
 		end
 
 		# Returns a hash of the specified dimension in the form {index=> value} where index is 1-based

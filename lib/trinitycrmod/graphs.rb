@@ -31,7 +31,7 @@ class CodeRunner::Trinity
 			array = t_indices.map{|i| get_2d_array_float(options[:outfile], options[:header], /1.*time/)[i].to_gslv}.mean.to_a
 			rho_array = t_indices.map{|i| get_2d_array_float(options[:outfile], options[:radius_match]||/2.*radius/, /1.*time/)[i].to_gslv}.mean.to_a
 			if options[:exclude_perturbed_fluxes]
-				s = array.size
+				#s = array.size
 				array = array.slice(0...nrad-1)
 				rho_array = rho_array.slice(0...nrad-1)
 			end
@@ -92,6 +92,36 @@ class CodeRunner::Trinity
 		def torque_prof_graphkit(options)
 			return pbalance_prof_graphkit(options.absorb({header: /torque/, title: 'Integrated torque', units: 'Nm'}))
 		end
+
+    def integrate_profkit(kit, area_vectors, t_indices)
+      datavecs = kit.data.map{|d| d.y.data}
+      #p 'datavecs.size', datavecs.size
+      rhovec = kit.data[0].x.data
+      rhoarea_vectors = get_1d_array_float('geo', /1:\s*rho/)
+      int = GSL::ScatterInterp.alloc(:linear,  [rhoarea_vectors.to_gslv, area_vectors.to_gslv], false )
+
+      area2 = rhovec.map{|rh| int.eval(rh)}
+      integrated_values = datavecs.map{|dat| (dat.to_gslv*area2.to_gslv).sum}
+      k2 = GraphKit.quick_create([list(:t).values, integrated_values])
+      k2.title = kit.title
+      k2.ylabel = kit.ylabel
+      return k2
+    end
+    private :integrate_profkit
+
+    # Graph of integrated profiles vs time
+    def integrated_profiles_graphkit(options)
+      t_indices = list(:t).keys
+      kit = t_indices.map{|it| profiles_graphkit(options.absorb({t_index: it}))}.inject{|o,n| o.merge(n)}
+      #kit.gnuplot
+      #area_vectors = t_indices.map{|i| get_2d_array_float('geo', /13:\s*area/, /1.*time/)[i].to_gslv}
+      #system "less #@directory/#@run_name.geo"
+      area_vectors = get_1d_array_float('geo', /13:\s*area/)
+      kit.each_with_index do |k,ik|
+        kit[ik] = integrate_profkit(k, area_vectors, t_indices)
+      end
+
+    end
 	end
 
 	include TrinityGraphKits
