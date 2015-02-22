@@ -64,6 +64,7 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 2, flux_pars: {nstep: 10}}')
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{restart_id: 3, flux_pars: {nstep: 10, nwrite: 1, tprim_1: {calib: 5.0, jac: 9.0}}, neval_calibrate: 6, ncc_calibrate: 1}')
       #STDIN.gets
+      @runner.run_list[4].calibration_graphkit({}).gnuplot
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{no_restart_gs2: true, restart_id: 4, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}, neval_calibrate: 6, ncc_calibrate: 1}')
 			CodeRunner.status(Y: 'test/gs2_42982')
       CodeRunner.run_command('watch_calibration_status', j: 5, Y: 'test/gs2_42982') 
