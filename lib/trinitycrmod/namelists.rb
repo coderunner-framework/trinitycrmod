@@ -902,11 +902,30 @@
        :autoscanned_defaults=>[".false."]},
      :calib_option=>
       {:should_include=>"true",
-       :description=>
-        "Sets interpolation of the calibration factor. 'default', 'piecewise_linear', or 'spline'.",
-       :help=>
-        "Which interpolation method to use for the calibration factor. 'default', 'piecewise_linear', or 'spline'.",
+       :description=>" Option for interpolating calib factor",
+       :help=>" Option for interpolating calib factor",
        :code_name=>:calib_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["default"]},
+     :n_gpus=>
+      {:should_include=>"true",
+       :description=>"Number of gpus avail for gryfx sims",
+       :help=>
+        "If running with gryfx, specify the number of gpus, i.e. the number of simulataneous gryfx simulations.",
+       :code_name=>:n_gpus,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer},
+     :flux_shell_script=>
+      {:should_include=>"true",
+       :description=>"A shell script to calculate the fluxes.",
+       :help=>
+        "When running with flux_option = shell, a shell script to calculate the fluxes that is executed during get fluxes.",
+       :code_name=>:flux_shell_script,
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
@@ -924,7 +943,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default", "iterdb"]},
+       :autoscanned_defaults=>["default"]},
      :init_file=>
       {:should_include=>"true",
        :description=>" file with input data",
@@ -1107,7 +1126,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false.", ".true."]},
+       :autoscanned_defaults=>[".false."]},
      :flux_groups=>
       {:should_include=>"true",
        :description=>" The number of processors for each flux calculation",
@@ -1129,7 +1148,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false.", ".true."]},
+       :autoscanned_defaults=>[".false."]},
      :peaking_factor=>
       {:should_include=>"true",
        :description=>

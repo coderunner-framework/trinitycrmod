@@ -25,6 +25,7 @@ class CodeRunner
     require 'trinitycrmod/actual_parameter_values'
     require 'trinitycrmod/chease'
     require 'trinitycrmod/calib'
+    require 'trinitycrmod/flux_interpolator'
 
     # Setup gs2 in case people are using it
     CodeRunner.setup_run_class('gs2')

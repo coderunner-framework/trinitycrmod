@@ -1,18 +1,22 @@
 require 'helper'
 
-class TestTrinitycrmodIFSPPPL < Test::Unit::TestCase
+class TestTrinitycrmodIFSPPPL < MiniTest::Test
   def setup
+    #puts "setup"; STDIN.gets
+    cleanup if FileTest.exist?('test/ifspppl/.code_runner_script_defaults')
     @runner = CodeRunner.fetch_runner(Y: 'test/ifspppl', C: 'trinity', X: '/dev/null')
 		system("gunzip test/gs2_42982/pr08_jet_42982_1d.dat.gz -c > test/gs2_42982/pr08_jet_42982_1d.dat")
 		system("gunzip test/gs2_42982/pr08_jet_42982_2d.dat.gz -c > test/gs2_42982/pr08_jet_42982_2d.dat")
 		FileUtils.makedirs('test/ifspppl/v')
   end
-  def teardown
+  def cleanup
     FileUtils.rm('test/ifspppl/.code_runner_script_defaults.rb')
     FileUtils.rm('test/ifspppl/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
     FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
     FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
 		FileUtils.rm_r('test/ifspppl/v')
+  end
+  def teardown
   end
   def test_basics
     assert_equal(@runner.run_class, CodeRunner::Trinity)
@@ -27,6 +31,10 @@ class TestTrinitycrmodIFSPPPL < Test::Unit::TestCase
 				system "ls v/id_2/"
 				#system "less v/id_2/#{@runner.run_list[2].error_file}"
 			end
+      if ENV['TEST_INTERP'] 
+        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: '{flux_option: "shell", flux_shell_script: "coderunner cc \'interpolate_fluxes(%[../id_1/v_id_1], %[v_id_3]}, %[tigrad], 2)\' -C trinity"}')
+        exit
+      end
 			#@runner.update
 			#CodeRunner.status(Y: 'test/ifspppl')
 			#STDIN.gets
@@ -47,7 +55,7 @@ end
 
 unless ENV['NO_GS2']
 
-class TestTrinitycrmodGs2 < Test::Unit::TestCase
+class TestTrinitycrmodGs2 < MiniTest::Test
 	def setup
 		CodeRunner.setup_run_class('trinity')
 		Dir.chdir('test/gs2_42982'){
@@ -114,7 +122,7 @@ class TestTrinitycrmodGs2 < Test::Unit::TestCase
 	end
 end
 
-class TestTrinitycrmodGs2Analysis < Test::Unit::TestCase
+class TestTrinitycrmodGs2Analysis < MiniTest::Test
 	def setup
 		Dir.chdir('test/gs2_42982_results/'){system "tar -xzf v.tgz"}
     @runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982_results', C: 'trinity', A: true)
@@ -147,9 +155,10 @@ end
 
 
 end #unless ENV['NO_GS2']
-class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
+class TestTrinitycrmodIFSPPPLAnalysis < MiniTest::Test
   def setup
     #@runner = CodeRunner.fetch_runner(Y: 'test/ifspppl_results', C: 'trinity', X: '/dev/null')
+    cleanup if FileTest.exist?('test/ifspppl_results/v/id_1')
 		Dir.chdir('test/ifspppl_results/v'){str = "tar -xzf id_1.tgz";system str}
     @runner = CodeRunner.fetch_runner(Y: 'test/ifspppl_results', C: 'trinity', X: ENV['HOME'] + '/Code/trinity/trunk/trinity', A: true)
     #@runner.run_class.make_new_defaults_file("rake_test", "test/ifspppl/test.trin")
@@ -182,8 +191,11 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
 	  kit = @runner.run_list[1].graphkit('profiles', {t_index: 2})
 	  kit = @runner.run_list[1].graphkit('integrated_profiles', {t_index: 2})
 
-		kit.gnuplot
+		#kit.gnuplot
 	end
+  def test_interpolate_fluxes
+    CodeRunner::Trinity.interpolate_fluxes('test/ifspppl_results/v/id_1/v_id_1', 'dummy', 'tigrads', 2)
+  end
 
 	def test_average_graphs
 	  kit = @runner.run_list[1].graphkit('ion_hflux_gb_prof', {t_index: 2})
@@ -198,6 +210,10 @@ class TestTrinitycrmodIFSPPPLAnalysis < Test::Unit::TestCase
 		assert_equal([0.001975, 0.001944].sum/2.0, kit.data[0].y.data[0])
 	end
   def teardown
+    return
+    #cleanup
+  end
+  def cleanup
     FileUtils.rm('test/ifspppl_results/.code_runner_script_defaults.rb')
     FileUtils.rm_r('test/ifspppl_results/v/id_1/')
   end
