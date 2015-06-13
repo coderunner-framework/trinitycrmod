@@ -1,3 +1,4 @@
+require 'scanf'
 class CodeRunner
 class ZeroEval
   def eval(*args)
@@ -11,7 +12,22 @@ class << self
   # (which may be a commma-separated list of multiple runs)
   # and read the contents of <run_name>_flux_inputs.dat and use them
   # to interpolate esitmates of the fluxes
-  def interpolate_fluxes(old_run_name, run_name, grad_option, ntspec)
+  def interpolate_fluxes(old_run_folder, run_folder, grad_option, ntspec)
+    old_run_name = nil
+    Dir.chdir(old_run_folder) do
+      old_cc = Dir.entries(Dir.pwd).find{|f| f =~ /\.cc$/}
+      raise "Can't find cc file in #{old_run_folder}" unless old_cc
+      old_run_name = File.expand_path(old_cc).sub(/.cc$/,'')
+    end
+
+    run_name = nil
+    Dir.chdir(run_folder) do
+      new_inp = Dir.entries(Dir.pwd).find{|f| f =~ /.flux_inputs$/}
+      raise "Can't find flux_inputs in #{run_folder}" unless new_inp
+      run_name = File.expand_path(new_inp).sub(/.flux_inputs$/,'')
+    end
+    
+
     ccfile = TextDataTools::Column::DataFile.new(old_run_name + '.cc', true, /\S+/, /(?:\#\s+)?\d+:.*?(?=\d+:|\Z)/)
     geofile = TextDataTools::Column::DataFile.new(old_run_name + '.geo', true, /\S+/, /(?:\#\s+)?\d+:\D*?(?=\d:|\d\d:|\Z)/)
     radius_data = ccfile.get_1d_array_float(/radius/)
@@ -29,7 +45,12 @@ class << self
       eln_temp: /20:/
     }
     perturb_data = perturb.inject({}) do |h,(k,v)| 
-      h[k] = ccfile.get_1d_array_float(v).pieces(np).transpose
+      begin
+        h[k] = ccfile.get_1d_array_float(v).pieces(np).transpose
+      rescue
+        p ccfile.get_1d_array(v)
+        exit
+      end
       h
     end
     fluxes = {
@@ -44,10 +65,10 @@ class << self
       h[k] = ccfile.get_1d_array_float(v).pieces(np).transpose
       h
     end
-    dvdrho = geofile.get_1d_array_float(/area/)
+    area = geofile.get_1d_array_float(/area/)
     grho = geofile.get_1d_array_float(/grho/)
     case grad_option
-    when 'tigrads'
+    when 'tigrad'
       jacobian_vecs = [:ion_temp,:ion_tprim]
       jacobian_vecs = [:ion_tprim]
       interp_vecs = [:ion_hflux]
@@ -75,17 +96,50 @@ class << self
       h
     end
     if run_name != 'dummy'
-      arr = File.read(run_name + '_flux_inputs.dat').scanf("%e")
+      arr = []
+      File.read(run_name + '.flux_inputs').scanf("%e"){|m| p m; arr+= m}
       # each of these quantities is a flat array with 
       # radial index varying fastest, then jacobian index
       # then species index where appropriate
       i = 0
+      p arr
       dens = arr[i...(i+=ncc*njac)]
-      temp = arr[i...(i+=ncc*njac*(ntspec+1))].pieces(2) # This is hardwired to 2
+      temp = arr[i...(i+=ncc*njac*2)].pieces(2) # This is hardwired to 2
       fprim = arr[i...(i+=ncc*njac)]
-      tprim = arr[i...(i+=ncc*njac*(ntspec+1))].pieces(2) # This is hardwired to 2
+      tprim = arr[i...(i+=ncc*njac*2)].pieces(2) # This is hardwired to 2
+      inputs = {}
+      inputs[:dens] = dens
+      inputs[:ion_temp] = temp[0]
+      inputs[:eln_temp] = temp[1]
+      inputs[:fprim] = fprim
+      inputs[:ion_tprim] = tprim[0]
+      inputs[:eln_tprim] = tprim[1]
 
-      File.open(run_name + '_flux_results.dat') do |file|
+      p 'inputs', inputs.values.map{|v| v.size}, inputs[:eln_tprim]
+
+      File.open(run_name + '.flux_results', 'w') do |file|
+        njac.times{|ij| (ntspec+1).times{ ncc.times{|ic| file.printf("%e ",interp[:pflux][ic].eval(*jacobian_vecs.map{|v| inputs[v][ic + ij*ncc]}))}}}
+        file.printf("\n")
+        njac.times{|ij| 
+          ncc.times{|ic| file.printf("%e ",interp[:ion_hflux][ic].eval(*jacobian_vecs.map{|v| inputs[v][ic + ij*ncc]}))}
+          ntspec.times{
+            ncc.times{|ic| file.printf("%e ",interp[:eln_hflux][ic].eval(*jacobian_vecs.map{|v| inputs[v][ic + ij*ncc]}))}
+          }
+        }
+        file.printf("\n")
+        njac.times{|ij| 
+          ncc.times{|ic| file.printf("%e ",interp[:ion_heat][ic].eval(*jacobian_vecs.map{|v| inputs[v][ic + ij*ncc]}))}
+          ntspec.times{
+            ncc.times{|ic| file.printf("%e ",interp[:eln_heat][ic].eval(*jacobian_vecs.map{|v| inputs[v][ic + ij*ncc]}))}
+          }
+        }
+        file.printf("\n")
+        njac.times{|ij| ncc.times{|ic| file.printf("%e ",interp[:lflux][ic].eval(*jacobian_vecs.map{|v| inputs[v][ic + ij*ncc]}))}}
+        file.printf("\n")
+        area.each{|v| file.printf("%e ", v)}
+        file.printf("\n")
+        grho.each{|v| file.printf("%e ", v)}
+        file.printf("\n")
       end
     else
       vec = GSL::Vector.linspace(perturb_data[:ion_tprim][0].min, perturb_data[:ion_tprim][0].max,20)
