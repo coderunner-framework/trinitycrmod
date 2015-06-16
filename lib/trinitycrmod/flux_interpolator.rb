@@ -142,9 +142,9 @@ class << self
         file.printf("\n")
       end
     else
-      vec = GSL::Vector.linspace(perturb_data[:ion_tprim][0].min, perturb_data[:ion_tprim][0].max,20)
-      #GraphKit.quick_create([vec, vec.collect{|x| interp[:ion_hflux][0].eval(x)}]).gnuplot
     end
+      vec = GSL::Vector.linspace(perturb_data[:ion_tprim][0].min, perturb_data[:ion_tprim][0].max,20)
+      GraphKit.quick_create([vec, vec.collect{|x| interp[:ion_hflux][0].eval(x)}], [perturb_data[:ion_tprim][0].to_gslv, fluxes_data[:ion_hflux][0].to_gslv]).gnuplot
 
     #GraphKit.quick_create([vec, vec.collect{|x| interp[:ion_hflux][0].eval(perturb_data[:ion_tprim][0].to_gslv.min, x)}]).gnuplot
 

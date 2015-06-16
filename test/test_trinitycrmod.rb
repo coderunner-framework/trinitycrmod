@@ -36,8 +36,8 @@ class TestTrinitycrmodIFSPPPL < MiniTest::Test
 				#system "less v/id_2/#{@runner.run_list[2].error_file}"
 			end
       if ENV['TEST_INTERP'] 
-        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: '{grad_option: "tigrad"}')
-        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: %${grad_option: "tigrad", flux_option: "shell", flux_shell_script: "echo starting; #$ruby_command -I '#{File.dirname(File.expand_path(__FILE__))}/../lib' -e 'require %[rubygems]; require %[trinitycrmod]; CodeRunner::Trinity.interpolate_fluxes(%[../id_1/], %[.], %[tigrad], 2)\'; echo ending", ntstep: 20}$)
+        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: '{grad_option: "tigrad", ntstep: 100}')
+        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: %${grad_option: "tigrad", flux_option: "shell", flux_shell_script: "echo starting; #$ruby_command -I '#{File.dirname(File.expand_path(__FILE__))}/../lib' -e 'require %[rubygems]; require %[trinitycrmod]; CodeRunner::Trinity.interpolate_fluxes(%[../id_3/], %[.], %[tigrad], 2)\'; echo ending", ntstep: 100}$)
       end
 			#@runner.update
 			#CodeRunner.status(Y: 'test/ifspppl')
