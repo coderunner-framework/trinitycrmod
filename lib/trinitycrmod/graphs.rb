@@ -214,6 +214,8 @@ class CodeRunner::Trinity
     if (meth = TrinityGraphKits.instance_methods.find{|m| m.to_s == name + '_graphkit'} or 
         meth = TrinityMultiKits.instance_methods.find{|m| m.to_s == name + '_graphkit'})
       return send(meth, options)
+    elsif name =~ /^nc_/
+      return smart_graphkit(options.absorb({graphkit_name: name}))
     else
       raise "GraphKit not found: #{name}"
     end 

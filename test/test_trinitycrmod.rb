@@ -36,8 +36,8 @@ class TestTrinitycrmodIFSPPPL < MiniTest::Test
 				#system "less v/id_2/#{@runner.run_list[2].error_file}"
 			end
       if ENV['TEST_INTERP'] 
-        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: '{grad_option: "tigrad", ntstep: 100}')
-        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: %${grad_option: "tigrad", flux_option: "shell", flux_shell_script: "echo starting; #$ruby_command -I '#{File.dirname(File.expand_path(__FILE__))}/../lib' -e 'require %[rubygems]; require %[trinitycrmod]; CodeRunner::Trinity.interpolate_fluxes(%[../id_3/], %[.], %[tigrad], 2)\'; echo ending", ntstep: 100}$)
+        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: '{grad_option: "tigrad", ntstep: 100, ntdelt_max: 0.01, include_neo: ".false."}')
+        CodeRunner.submit(Y: 'test/ifspppl', T: false, D: 'rake_test', n: '1', X: ENV['TRINITY_EXEC'], p: %${grad_option: "tigrad", flux_option: "shell", flux_shell_script: "echo starting; #$ruby_command -I '#{File.dirname(File.expand_path(__FILE__))}/../lib' -e 'require %[rubygems]; require %[trinitycrmod]; CodeRunner::Trinity.interpolate_fluxes(%[../id_3/], %[.], %[tigrad], 2)\'; echo ending", ntstep: 100, include_neo: ".false."}$)
       end
 			#@runner.update
 			#CodeRunner.status(Y: 'test/ifspppl')
@@ -61,6 +61,7 @@ unless ENV['NO_GS2']
 
 class TestTrinitycrmodGs2 < MiniTest::Test
 	def setup
+    cleanup if FileTest.exist?('test/gs2_42982/v/')
 		CodeRunner.setup_run_class('trinity')
 		Dir.chdir('test/gs2_42982'){
 			CodeRunner::Trinity.use_new_defaults_file_with_gs2('rake_test_gs2_42982', 'shot42982_jet.trin', 'shot42982_jet.in')
@@ -79,8 +80,8 @@ class TestTrinitycrmodGs2 < MiniTest::Test
       @runner.run_list[4].calibration_graphkit({}).gnuplot
 			CodeRunner.submit(Y: 'test/gs2_42982', X: ENV['TRINITY_EXEC'], n: '8', p: '{no_restart_gs2: true, restart_id: 4, flux_pars: {nstep: 10, nwrite: 1, nsave: 1}, neval_calibrate: 6, ncc_calibrate: 1}')
 			CodeRunner.status(Y: 'test/gs2_42982')
-      CodeRunner.run_command('watch_calibration_status', j: 5, Y: 'test/gs2_42982') 
-      STDIN.gets
+      #CodeRunner.run_command('watch_calibration_status', j: 5, Y: 'test/gs2_42982') 
+      #STDIN.gets
 		  runs = @runner.run_list
 			assert_equal(:Complete, runs[1].status)
 			assert_equal(:Complete, runs[2].status)
@@ -90,7 +91,7 @@ class TestTrinitycrmodGs2 < MiniTest::Test
 			assert_equal(5.0, runs[4].gs2_runs[8].tprim_1)
 			assert_equal(runs[1].list(:t).values.max, runs[2].list(:t).values.min)
 			assert_equal(runs[3].list(:t).values.max, runs[4].list(:t).values.min)
-		  assert_equal(runs[2].gs2_runs[3].gsl_vector('phi2tot_over_time')[-1].round(2), runs[3].gs2_runs[3].gsl_vector('phi2tot_over_time')[0].round(2))
+		  assert_equal(runs[2].gs2_runs[3].gsl_vector('phi2tot_over_time')[-1].round(1), runs[3].gs2_runs[3].gsl_vector('phi2tot_over_time')[0].round(1))
       assert_equal(9, runs[5].gs2_runs.size)
       assert_equal("noise", runs[5].gs2_runs[8].ginit_option)
       testrun=6
@@ -111,23 +112,27 @@ class TestTrinitycrmodGs2 < MiniTest::Test
 		assert_equal(16, @runner.run_list[testrun].gs2_runs.size)
 		assert_equal(8, @runner.run_list[1].gs2_runs.size)
 	end
-	def teardown 
+  def cleanup
+    @runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982', C: 'trinity', X: '/dev/null')
     FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_gs2_42982_defaults.rb')
     FileUtils.rm('test/gs2_42982/rake_test_gs2_42982_defaults.rb')
     FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
     FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
     FileUtils.rm('test/gs2_42982/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+    #STDIN.gets
+		FileUtils.rm_r('test/gs2_42982/v/')
+  end
+	def teardown 
 		if ENV['TRINITY_EXEC'] and not FileTest.exist?('test/gs2_42982_results/v.tgz')
 			Dir.chdir('test/gs2_42982'){system("tar -czf v.tgz v/")}
 			FileUtils.mv('test/gs2_42982/v.tgz', 'test/gs2_42982_results/.')
 		end
-    #STDIN.gets
-		FileUtils.rm_r('test/gs2_42982/v/')
 	end
 end
 
 class TestTrinitycrmodGs2Analysis < MiniTest::Test
 	def setup
+    cleanup if FileTest.exist?('test/gs2_42982_results/v')
 		Dir.chdir('test/gs2_42982_results/'){system "tar -xzf v.tgz"}
     @runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982_results', C: 'trinity', A: true)
 	end
@@ -142,6 +147,8 @@ class TestTrinitycrmodGs2Analysis < MiniTest::Test
 		run.status = :Unknown
 		@runner.recheck_filtered_runs
 	  assert_equal(8, @runner.run_list[1].gs2_run_times[0].size)
+    @runner.use_component = :real
+    @runner.run_graphkit('nc_temp_grid', {t_index: 1, conditions: "id==3"}).gnuplot
 	end
 	#def test_load_component_runs
 		#CodeRunner.status(Y: 'test/gs2_42982_results')
@@ -150,10 +157,12 @@ class TestTrinitycrmodGs2Analysis < MiniTest::Test
 		#Dir.chdir(run.directory){run.save; newrun = CodeRunner::Trinity.load(Dir.pwd, @runner)}
 		#assert_equal(CodeRunner, newrun.runner.class)
 	#end
-	def teardown
+  def cleanup
 		FileUtils.rm_r('test/gs2_42982_results/v')
     FileUtils.rm('test/gs2_42982_results/.code_runner_script_defaults.rb')
     FileUtils.rm('test/gs2_42982_results/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+  end
+	def teardown
 	end
 end
 
@@ -198,7 +207,7 @@ class TestTrinitycrmodIFSPPPLAnalysis < MiniTest::Test
 		#kit.gnuplot
 	end
   def test_interpolate_fluxes
-    CodeRunner::Trinity.interpolate_fluxes('test/ifspppl_results/v/id_1/v_id_1', 'dummy', 'tigrads', 2)
+    #CodeRunner::Trinity.interpolate_fluxes('test/ifspppl_results/v/id_1/', 'dummy', 'tigrads', 2)
   end
 
 	def test_average_graphs
