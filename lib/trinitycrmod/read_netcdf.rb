@@ -58,6 +58,8 @@ class NetcdfSmartReader
         hsh
       }
       narray = options[:modify_variable].call(varname, narray, myhsh)
+    elsif options[:invert_matrix]
+      narray = GSL::Linalg::LU.invert(narray.to_gm_view).to_na_ref
     end
     shape = narray.shape
     shape.delete_if{|i| i==1}
@@ -99,14 +101,14 @@ class NetcdfSmartReader
 
   def axiskit(variable, options)
     case variable
-    when 'nmat', 'tspec', 'iter'
+    when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad'
       return GraphKit::AxisKit.autocreate(data: GSL::Vector.linspace(1, sz=@file.dim(variable).length, sz), title: variable)
     end
     GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('units').get, title: @file.var(variable).att('description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, ''))
   end
   def dimension_variable_name(n)
     case n
-    when 't','tspec', 'iter', 'rad', 'cc', 'nmat'
+    when 't','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad'
       n
     else
       raise "Unknown dimension #{n}"
