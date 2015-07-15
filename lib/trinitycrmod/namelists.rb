@@ -912,20 +912,31 @@
        :autoscanned_defaults=>["default"]},
      :n_gpus=>
       {:should_include=>"true",
-       :description=>"Number of gpus avail for gryfx sims",
-       :help=>
-        "If running with gryfx, specify the number of gpus, i.e. the number of simulataneous gryfx simulations.",
+       :description=>" For gryfx, number of avail gpus",
+       :help=>" For gryfx, number of avail gpus",
        :code_name=>:n_gpus,
        :must_pass=>
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
-       :type=>:Integer},
+       :type=>:Integer,
+       :autoscanned_defaults=>[1]},
      :flux_shell_script=>
       {:should_include=>"true",
-       :description=>"A shell script to calculate the fluxes.",
-       :help=>
-        "When running with flux_option = shell, a shell script to calculate the fluxes that is executed during get fluxes.",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:flux_shell_script,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>[""]},
+     :replay_filename=>
+      {:should_include=>"true",
+       :description=>
+        "Name of the netcdf output file that contains the fluxes to be read.",
+       :help=>
+        "If running in replay mode, gives the filename of the trinity netcdf output file that contains the fluxes to be read.",
+       :code_name=>:replay_filename,
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
