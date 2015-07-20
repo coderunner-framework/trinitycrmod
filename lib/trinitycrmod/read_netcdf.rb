@@ -20,7 +20,7 @@ def new_netcdf_file
   end
   cache[:new_netcdf_file_otime] = Time.now.to_i
   cache[:new_netcdf_file] ||= NumRu::NetCDF.open(new_netcdf_filename)
-  cache[:new_netcdf_file].sync
+  #cache[:new_netcdf_file].sync
   cache[:new_netcdf_file]
 end
 
@@ -101,14 +101,14 @@ class NetcdfSmartReader
 
   def axiskit(variable, options)
     case variable
-    when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad'
+    when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad', 'eval'
       return GraphKit::AxisKit.autocreate(data: GSL::Vector.linspace(1, sz=@file.dim(variable).length, sz), title: variable)
     end
     GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('units').get, title: @file.var(variable).att('description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, ''))
   end
   def dimension_variable_name(n)
     case n
-    when 't','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad'
+    when 't','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval'
       n
     else
       raise "Unknown dimension #{n}"
