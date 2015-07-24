@@ -400,6 +400,8 @@ class CodeRunner
       #p ["HERE2", @component_runs.size, @component_runs[i]]
           #Dir.chdir(@directory) {
             compdir = flux_folder_name(i) #  "flux_tube_#{i+1}"
+            # Stop it actually checking the flux codes every time.
+            component.instance_variable_set(:@status, :Complete)
             Dir.chdir(compdir){component.process_directory} if FileTest.exist? compdir
           #}
           component.component_runs = []
