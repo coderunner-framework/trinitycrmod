@@ -32,6 +32,9 @@ class CodeRunner
     CodeRunner.setup_run_class('gs2')
     require 'trinitycrmod/trinity_gs2'
 
+    # Setup gryfx in case people are using it
+    CodeRunner.setup_run_class('gryfx')
+
     ################################################
     # Quantities that are read or determined by CodeRunner
     # after the simulation has ended
@@ -57,7 +60,7 @@ class CodeRunner
 
     @code_long="Trinity Turbulent Transport Solver"
 
-    @run_info=[:time, :is_a_restart, :restart_id, :restart_run_name, :completed_timesteps, :percent_complete, :no_restart_gs2]
+    @run_info=[:time, :is_a_restart, :restart_id, :restart_run_name, :completed_timesteps, :percent_complete, :no_restart_gs2, :gs_folder]
 
     @uses_mpi = true
 
@@ -66,7 +69,7 @@ class CodeRunner
     @naming_pars = []
 
     #  Any folders which are a number will contain the results from flux simulations.
-    @excluded_sub_folders = (1...1000).to_a.map{|i| "flux_tube_" + i.to_s}
+    @excluded_sub_folders = (1...1000).to_a.map{|i| "flux_tube_" + i.to_s} + ['chease']
 
     #  A hook which gets called when printing the standard run information to the screen using the status command.
     def print_out_line
