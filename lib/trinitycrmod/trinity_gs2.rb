@@ -90,7 +90,7 @@ EOF2
 		# Generates the component runs for GS2 and returns the hash
 		# Raises an error if flux_option != "gs2"
 		def flux_runs
-			raise FluxOptionError.new("flux_runs called and flux_option != gs2 or gryfx") if not flux_gs2? or flux_gryfx?
+			raise FluxOptionError.new("flux_runs called and flux_option != gs2 or gryfx") if not (flux_gs2? or flux_gryfx?)
      
 
 			#puts "2@COMMMMMMMMMMMMMPOOOOOOOOOOOOOONNNETN", @component_runs
