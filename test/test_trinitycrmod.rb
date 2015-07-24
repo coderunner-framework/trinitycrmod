@@ -14,11 +14,11 @@ class TestTrinitycrmodIFSPPPL < MiniTest::Test
 		FileUtils.makedirs('test/ifspppl/v')
   end
   def cleanup
-    FileUtils.rm('test/ifspppl/.code_runner_script_defaults.rb')
-    FileUtils.rm('test/ifspppl/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
-    FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
-    FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
-		FileUtils.rm_r('test/ifspppl/v')
+    #FileUtils.rm('test/ifspppl/.code_runner_script_defaults.rb')
+    #FileUtils.rm('test/ifspppl/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+    #FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
+    #FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
+		#FileUtils.rm_r('test/ifspppl/v')
   end
   def teardown
   end
@@ -61,10 +61,10 @@ unless ENV['NO_GS2']
 
 class TestTrinitycrmodGs2 < MiniTest::Test
 	def setup
-    cleanup if FileTest.exist?('test/gs2_42982/v/')
+    cleanup
 		CodeRunner.setup_run_class('trinity')
 		Dir.chdir('test/gs2_42982'){
-			CodeRunner::Trinity.use_new_defaults_file_with_gs2('rake_test_gs2_42982', 'shot42982_jet.trin', 'shot42982_jet.in')
+			CodeRunner::Trinity.use_new_defaults_file_with_flux('rake_test_gs2_42982', 'shot42982_jet.trin', 'shot42982_jet.in', 'gs2')
 		}
     @runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982', C: 'trinity', X: '/dev/null')
 		system("gunzip test/gs2_42982/pr08_jet_42982_1d.dat.gz -c > test/gs2_42982/pr08_jet_42982_1d.dat")
@@ -85,15 +85,15 @@ class TestTrinitycrmodGs2 < MiniTest::Test
 		  runs = @runner.run_list
 			assert_equal(:Complete, runs[1].status)
 			assert_equal(:Complete, runs[2].status)
-			assert_equal(1, runs[2].gs2_runs[1].nwrite)
-			assert_equal(1, runs[3].gs2_runs[1].nwrite)
-			assert_equal(9.0, runs[4].gs2_runs[1].tprim_1)
-			assert_equal(5.0, runs[4].gs2_runs[8].tprim_1)
+			assert_equal(1, runs[2].flux_runs[1].nwrite)
+			assert_equal(1, runs[3].flux_runs[1].nwrite)
+			assert_equal(9.0, runs[4].flux_runs[1].tprim_1)
+			assert_equal(5.0, runs[4].flux_runs[8].tprim_1)
 			assert_equal(runs[1].list(:t).values.max, runs[2].list(:t).values.min)
 			assert_equal(runs[3].list(:t).values.max, runs[4].list(:t).values.min)
-		  assert_equal(runs[2].gs2_runs[3].gsl_vector('phi2tot_over_time')[-1].round(1), runs[3].gs2_runs[3].gsl_vector('phi2tot_over_time')[0].round(1))
-      assert_equal(9, runs[5].gs2_runs.size)
-      assert_equal("noise", runs[5].gs2_runs[8].ginit_option)
+		  assert_equal(runs[2].flux_runs[3].gsl_vector('phi2tot_over_time')[-1].round(1), runs[3].flux_runs[3].gsl_vector('phi2tot_over_time')[0].round(1))
+      assert_equal(9, runs[5].flux_runs.size)
+      assert_equal("noise", runs[5].flux_runs[8].ginit_option)
       testrun=6
 
 		else
@@ -106,21 +106,21 @@ class TestTrinitycrmodGs2 < MiniTest::Test
 		@runner.recalc_all = true
 		@runner.update
 		#CodeRunner.status(Y: 'test/gs2_42982', h: :component, A: true)
-		assert_equal(0.003, @runner.run_list[testrun].gs2_runs[2].delt)
-		assert_equal(0.01, @runner.run_list[testrun].gs2_runs[1].delt)
-		assert_equal(43, @runner.run_list[testrun].gs2_runs[1].nx)
-		assert_equal(16, @runner.run_list[testrun].gs2_runs.size)
-		assert_equal(8, @runner.run_list[1].gs2_runs.size)
+		assert_equal(0.003, @runner.run_list[testrun].flux_runs[2].delt)
+		assert_equal(0.01, @runner.run_list[testrun].flux_runs[1].delt)
+		assert_equal(43, @runner.run_list[testrun].flux_runs[1].nx)
+		assert_equal(16, @runner.run_list[testrun].flux_runs.size)
+		assert_equal(8, @runner.run_list[1].flux_runs.size)
 	end
   def cleanup
-    @runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982', C: 'trinity', X: '/dev/null')
-    FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_gs2_42982_defaults.rb')
-    FileUtils.rm('test/gs2_42982/rake_test_gs2_42982_defaults.rb')
-    FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat')
-    FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat')
-    FileUtils.rm('test/gs2_42982/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
-    #STDIN.gets
-		FileUtils.rm_r('test/gs2_42982/v/')
+    #@runner = CodeRunner.fetch_runner(Y: 'test/gs2_42982', C: 'trinity', X: '/dev/null')
+    #FileUtils.rm(@runner.run_class.rcp.user_defaults_location + '/rake_test_gs2_42982_defaults.rb') rescue nil
+    #FileUtils.rm('test/gs2_42982/rake_test_gs2_42982_defaults.rb') rescue nil
+    #FileUtils.rm('test/gs2_42982/pr08_jet_42982_1d.dat') rescue nil
+    #FileUtils.rm('test/gs2_42982/pr08_jet_42982_2d.dat') rescue nil
+    #FileUtils.rm('test/gs2_42982/.CODE_RUNNER_TEMP_RUN_LIST_CACHE') rescue nil
+    ##STDIN.gets
+    #FileUtils.rm_r('test/gs2_42982/v/') rescue nil
   end
 	def teardown 
 		if ENV['TRINITY_EXEC'] and not FileTest.exist?('test/gs2_42982_results/v.tgz')
@@ -143,7 +143,7 @@ class TestTrinitycrmodGs2Analysis < MiniTest::Test
 		newrun=nil
 		Dir.chdir(run.directory){run.save; newrun = CodeRunner::Trinity.load(Dir.pwd, @runner)}
 		assert_equal(CodeRunner, newrun.runner.class)
-		assert_equal(CodeRunner, newrun.gs2_runs[1].runner.class)
+		assert_equal(CodeRunner, newrun.flux_runs[1].runner.class)
 		run.status = :Unknown
 		@runner.recheck_filtered_runs
 	  assert_equal(8, @runner.run_list[1].gs2_run_times[0].size)
@@ -158,9 +158,9 @@ class TestTrinitycrmodGs2Analysis < MiniTest::Test
 		#assert_equal(CodeRunner, newrun.runner.class)
 	#end
   def cleanup
-		FileUtils.rm_r('test/gs2_42982_results/v')
-    FileUtils.rm('test/gs2_42982_results/.code_runner_script_defaults.rb')
-    FileUtils.rm('test/gs2_42982_results/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
+		#FileUtils.rm_r('test/gs2_42982_results/v')
+    #FileUtils.rm('test/gs2_42982_results/.code_runner_script_defaults.rb')
+    #FileUtils.rm('test/gs2_42982_results/.CODE_RUNNER_TEMP_RUN_LIST_CACHE')
   end
 	def teardown
 	end
@@ -227,7 +227,7 @@ class TestTrinitycrmodIFSPPPLAnalysis < MiniTest::Test
     #cleanup
   end
   def cleanup
-    FileUtils.rm('test/ifspppl_results/.code_runner_script_defaults.rb')
-    FileUtils.rm_r('test/ifspppl_results/v/id_1/')
+    #FileUtils.rm('test/ifspppl_results/.code_runner_script_defaults.rb') rescue nil
+    #FileUtils.rm_r('test/ifspppl_results/v/id_1/') rescue nil
   end
 end

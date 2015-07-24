@@ -12,6 +12,11 @@ class CodeRunner
     class FluxOptionError < StandardError; end
 
 
+    # Setup gs2 in case people are using it
+    CodeRunner.setup_run_class('gs2')
+    # Setup gryfx in case people are using it
+    CodeRunner.setup_run_class('gryfx')
+    require 'trinitycrmod/trinity_gs2'
 
     # Where this file is
     @code_module_folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file is in
@@ -28,12 +33,6 @@ class CodeRunner
     require 'trinitycrmod/flux_interpolator'
     require 'trinitycrmod/read_netcdf'
 
-    # Setup gs2 in case people are using it
-    CodeRunner.setup_run_class('gs2')
-    require 'trinitycrmod/trinity_gs2'
-
-    # Setup gryfx in case people are using it
-    CodeRunner.setup_run_class('gryfx')
 
     ################################################
     # Quantities that are read or determined by CodeRunner
@@ -102,10 +101,10 @@ class CodeRunner
       #new_run = self.dup
       (rcp.variables).each{|v| new_run.set(v, send(v)) if send(v) or new_run.send(v)}
       if @flux_option == "gs2"
-        gs2_runs.each_with_index do |run, i|
+        flux_runs.each_with_index do |run, i|
           CodeRunner::Gs2.rcp.variables.each{|v|
             next if [:ginit_option, :delt_option].include? v and new_run.no_restart_gs2
-            new_run.gs2_runs[i].set(v, run.send(v)) if run.send(v) or new_run.gs2_runs[i].send(v)
+            new_run.flux_runs[i].set(v, run.send(v)) if run.send(v) or new_run.flux_runs[i].send(v)
           }
         end
       end
@@ -122,7 +121,7 @@ class CodeRunner
       new_run.init_file = @run_name + ".tmp"
       @runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs
       # This is unnecessary for single restart file.
-      warning( "Restart is not on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}... this is only OK if you are using parallel netcdf and single restart files.") if not new_run.no_restart_gs2 and (!new_run.nprocs or new_run.nprocs != @nprocs)
+      warning( "Restart is not on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}... this is only OK if you are using parallel netcdf and single restart files.") if flux_gs2? and not new_run.no_restart_gs2 and (!new_run.nprocs or new_run.nprocs != @nprocs)
       raise "Restart cannot have a different sized jacobian: new is #{new_run.n_flux_tubes_jac} and old is #{n_flux_tubes_jac}" unless new_run.n_flux_tubes_jac == n_flux_tubes_jac
     #   @runner.parameters.each{|var, value| new_run.set(var,value)} if @runner.parameters
     #   ep @runner.parameters
@@ -141,38 +140,24 @@ class CodeRunner
         # run.
         FileUtils.cp("#@directory/#@run_name.#{ext}", "#{new_run.directory}/.")
       end
-      if new_run.flux_option == "gs2" and @flux_option == "gs2" and not new_run.no_restart_gs2
+      if (new_run.flux_gs2? and flux_gs2?) and not new_run.no_restart_gs2
         for i in 0...n_flux_tubes
           break if i >= new_run.n_flux_tubes
-          #if i >= n_flux_tubes_jac
-            #jn = i - n_flux_tubes_jac + 1
-            ##run_name = "calibrate_" + @run_name + (jn).to_s
-            #folder = "calibrate_#{jn}"
-          #else
-            #jn = i + 1
-            ##run_name = @run_name + (jn).to_s
-            #folder = "flux_tube_#{jn}"
-          #end
-          #
-          folder = gs2_folder_name(i)
+          folder = flux_folder_name(i)
 
-          new_run.gs2_runs[i].directory = new_run.directory + "/#{folder}"
-          FileUtils.makedirs(new_run.gs2_runs[i].directory)
-          #ep ['gs2_runs[i] before', gs2_runs[i].nwrite, new_run.gs2_runs[i].nwrite, new_run.gs2_runs[i].parameter_hash]
-          gs2_runs[i].restart(new_run.gs2_runs[i])
+          new_run.flux_runs[i].directory = new_run.directory + "/#{folder}"
+          FileUtils.makedirs(new_run.flux_runs[i].directory)
+          flux_runs[i].restart(new_run.flux_runs[i])
           if new_run.neval_calibrate and new_run.neval_calibrate > 0 and 
-            new_run.gs2_runs[i].nonlinear_mode == "off" 
+            new_run.flux_runs[i].nonlinear_mode == "off" 
 
-            new_run.gs2_runs[i].ginit_option = "noise"
-            new_run.gs2_runs[i].delt_option = "default"
-            new_run.gs2_runs[i].is_a_restart = false
-            new_run.gs2_runs[i].restart_id = nil
+            new_run.flux_runs[i].ginit_option = "noise"
+            new_run.flux_runs[i].delt_option = "default"
+            new_run.flux_runs[i].is_a_restart = false
+            new_run.flux_runs[i].restart_id = nil
           end
-          #ep ['gs2_runs[i] after', gs2_runs[i].nwrite, new_run.gs2_runs[i].nwrite, new_run.gs2_runs[i].parameter_hash]
-          #new_run.gs2_runs[i].run_name = new_run.run_name + (i+1).to_s
         end
       end
-      #@runner.submit(new_run)
       new_run
     end
     #  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
@@ -184,7 +169,7 @@ class CodeRunner
         setup_chease if uses_chease?
         check_parameters
         write_input_file
-        generate_gs2_input_files if @flux_option == "gs2"
+        generate_flux_input_files if flux_gs2? or flux_gryfx?
     end
 
 
@@ -198,10 +183,10 @@ class CodeRunner
     def update_submission_parameters(parameters, start_from_defaults=true)
       @set_flux_defaults_procs ||= []
       super(parameters, start_from_defaults)
-      if @flux_option == "gs2"
+      if flux_gs2? or flux_gryfx?
         raise "No set_flux_defaults_procs defined" unless @set_flux_defaults_procs.size > 0
         @set_flux_defaults_procs.each{|prc| prc.call}
-        gs2_parameter_hashes = {}
+        flux_parameter_hashes = {}
         if @flux_pars
           @flux_pars.each do |par, val|
             if val.kind_of? Hash
@@ -215,8 +200,8 @@ class CodeRunner
                   range = n..n
                 end
                 for i in range
-                  gs2_parameter_hashes[i] ||= {}
-                  gs2_parameter_hashes[i][par] = v
+                  flux_parameter_hashes[i] ||= {}
+                  flux_parameter_hashes[i][par] = v
                 end
                 #gs2_parameter_hashes[n] ||= {}
                 #gs2_parameter_hashes[n][par] = v
@@ -224,15 +209,15 @@ class CodeRunner
             else
               for i in 0...n_flux_tubes
                 #gs2_runs.each{|r| r.set(par, val)}
-                gs2_parameter_hashes[i] ||= {}
-                gs2_parameter_hashes[i][par] = val
+                flux_parameter_hashes[i] ||= {}
+                flux_parameter_hashes[i][par] = val
               end
             end
           end
         end
         for i in 0...n_flux_tubes
-          gs2_runs[i].parameter_hash = (gs2_parameter_hashes[i] || {}).inspect
-          gs2_runs[i].update_submission_parameters(gs2_runs[i].parameter_hash, false)
+          flux_runs[i].parameter_hash = (flux_parameter_hashes[i] || {}).inspect
+          flux_runs[i].update_submission_parameters(flux_runs[i].parameter_hash, false)
         end
       end
       self
@@ -286,14 +271,14 @@ class CodeRunner
 
     # Writes the gs2 input files, creating separate subfolders
     # for them if @subfolders is .true.
-    def generate_gs2_input_files
+    def generate_flux_input_files
       # At the moment we must use subfolders
       for i in 0...n_flux_tubes
         #gs2run = gs2_run(:base).dup
         #gs2_run(i).instance_variables.each do |var|
           #gs2run.instance_variable_set(var, gs2_run(i).instance_variable_get(var))
         #end
-        gs2run = gs2_runs[i]
+        fluxrun = flux_runs[i]
         #ep ['gs2_runs[i] in generate', gs2_runs[i].nwrite]
         #p ['i',i]
         #if i >= n_flux_tubes_jac
@@ -306,20 +291,20 @@ class CodeRunner
           #folder = "flux_tube_#{jn}"
         #end
 
-        folder = gs2_folder_name(i)
-        run_name = gs2_run_name(i)
+        folder = flux_folder_name(i)
+        run_name = flux_run_name(i)
 
         if @subfolders and @subfolders.fortran_true?
-          gs2run.directory = @directory + "/" + folder
-          FileUtils.makedirs(gs2run.directory)
-          gs2run.relative_directory = @relative_directory + "/" + folder
-          gs2run.restart_dir = gs2run.directory + "/nc"
+          fluxrun.directory = @directory + "/" + folder
+          FileUtils.makedirs(fluxrun.directory)
+          fluxrun.relative_directory = @relative_directory + "/" + folder
+          fluxrun.restart_dir = fluxrun.directory + "/nc"
         else
-          gs2run.directory = @directory
-          gs2run.relative_directory = @relative_directory
+          fluxrun.directory = @directory
+          fluxrun.relative_directory = @relative_directory
         end
-        gs2run.run_name = run_name
-        gs2run.nprocs = @nprocs
+        fluxrun.run_name = run_name
+        fluxrun.nprocs = @nprocs
         if i==0
           block = Proc.new{check_parameters}
         else
@@ -327,15 +312,15 @@ class CodeRunner
         end
         #if @restart_id
           #gs2run.restart_id =
-        Dir.chdir(gs2run.directory) do
-          gs2run.generate_input_file(&block)
-          gs2run.write_info
+        Dir.chdir(fluxrun.directory) do
+          fluxrun.generate_input_file(&block)
+          fluxrun.write_info
         end
 
         ### Hack the input file so that gs2 gets the location of
         # the restart dir correctly within trinity
-        if @subfolders and @subfolders.fortran_true?
-          infile = gs2run.directory + "/" + gs2run.run_name + ".in"
+        if @subfolders and @subfolders.fortran_true? 
+          infile = fluxrun.directory + "/" + fluxrun.run_name + ".in"
           text = File.read(infile)
           File.open(infile, 'w'){|f| f.puts text.sub(/restart_dir\s*=\s*"nc"/, "restart_dir = \"#{folder}/nc\"")}
         end
@@ -377,11 +362,8 @@ class CodeRunner
     def generate_component_runs
       #puts "HERE"
       @component_runs ||= []
-      if @flux_option == "gs2"
-      #puts "HERE"
-      #puts "generate_component_runs", @component_runs.size, @runner.run_list.size, caller.to_a.slice(0..9)
-      #puts @component_runs[1].ginit_option if @component_runs.size > 0
-      #STDIN.gets
+      if flux_gryfx? or flux_gs2?
+        fclass = flux_class
 
         for i in 0...n_flux_tubes
           component = @component_runs[i]
@@ -389,7 +371,7 @@ class CodeRunner
           if not component
             #p "HEELO"
             #p [i, '3,', component, '4', @component_runs.size]
-            component = @component_runs[i] =  Gs2::TrinityComponent.new(@runner, self).create_component
+            component = @component_runs[i] =  fclass.new(@runner, self).create_component
             #component.instance_variable_set(:@output_file, output_file)
             #p [i, '3,', component, '4', @component_runs.size]
             if false
@@ -417,7 +399,7 @@ class CodeRunner
           #component.status = @status
       #p ["HERE2", @component_runs.size, @component_runs[i]]
           #Dir.chdir(@directory) {
-            compdir = gs2_folder_name(i) #  "flux_tube_#{i+1}"
+            compdir = flux_folder_name(i) #  "flux_tube_#{i+1}"
             Dir.chdir(compdir){component.process_directory} if FileTest.exist? compdir
           #}
           component.component_runs = []
@@ -434,27 +416,6 @@ class CodeRunner
       end
     end
 
-
-    def save
-      #@gs2_run_list.values.each{|r| r.runner = nil; r.component_runs = []} if @gs2_run_list.kind_of? Hash
-      super
-      #@gs2_run_list.values.each{|r| r.runner = @runner} if @gs2_run_list.kind_of? Hash
-
-      #logf(:save)
-      #raise CRFatal.new("Something has gone horribly wrong: runner.class is #{@runner.class} instead of CodeRunner") unless @runner.class.to_s == "CodeRunner"
-      #runner, @runner = @runner, nil
-      #@system_triers, old_triers = nil, @system_triers
-      #@component_runs.each{|run| run.runner = nil; run.component_runs = []} if @component_runs
-      ##@component_runs.each{|run| run.runner = nil} if @component_runs
-    ##   logi(self)
-      ##pp self
-      ##@component_runs.each{|ph| ph.instance_variables.each{|var| puts var; pp ph.instance_variable_get(var); STDIN.gets;  puts ph.Marshal.dump(instance_variable_get(var))}} if @component_runs
-      ##instance_variables.each{|var| puts var;  instance_variable_get(var);  puts Marshal.dump(instance_variable_get(var)); STDIN.gets}
-      #Dir.chdir(@directory){File.open(".code_runner_run_data", 'w'){|file| file.puts Marshal.dump(self)}}
-      #@runner = runner
-      #@component_runs.each{|run| run.runner = runner} if @component_runs
-      #@system_triers = old_triers
-    end
 
     @source_code_subfolders = []
 

@@ -4,6 +4,7 @@ source "http://rubygems.org"
    gem "coderunner", ">= 0.16.10"
    gem "text-data-tools", ">= 1.1.6"
 	 gem "gs2crmod", ">=0.11.76"
+	 gem "gryfxcrmod", ">=0.1.9"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
