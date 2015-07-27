@@ -122,29 +122,30 @@ class CodeRunner::Trinity
       end
 
     end
+    
+    # Graph of the ion heat calibration factor
+    def ion_hflux_calibration_graphkit(options)
+      calibs = Calib.analyse_file("#@directory/#@run_name.calib")
+      k = calibs.map{|c| c.qflux_graphkit(0)}.sum
+      k.ylabel = 'Qi'
+      k
+    end
+    # Graph of the electron heat calibration factor
+    def eln_hflux_calibration_graphkit(options)
+      calibs = Calib.analyse_file("#@directory/#@run_name.calib")
+      k = calibs.map{|c| c.qflux_graphkit(1)}.sum
+      k.ylabel = 'Qe'
+      k
+    end
+    # Graph of the particle flux calibration factor
+    def pflux_calibration_graphkit(options)
+      calibs = Calib.analyse_file("#@directory/#@run_name.calib")
+      k = calibs.map{|c| c.pflux_graphkit(1)}.sum
+      k.ylabel = 'Gamma'
+      k
+    end
   end
 
-  # Graph of the ion heat calibration factor
-  def ion_hflux_calibration_graphkit(options)
-    calibs = Calib.analyse_file("#@directory/#@run_name.calib")
-    k = calibs.map{|c| c.qflux_graphkit(0)}.sum
-    k.ylabel = 'Qi'
-    k
-  end
-  # Graph of the electron heat calibration factor
-  def eln_hflux_calibration_graphkit(options)
-    calibs = Calib.analyse_file("#@directory/#@run_name.calib")
-    k = calibs.map{|c| c.qflux_graphkit(1)}.sum
-    k.ylabel = 'Qe'
-    k
-  end
-  # Graph of the particle flux calibration factor
-  def pflux_calibration_graphkit(options)
-    calibs = Calib.analyse_file("#@directory/#@run_name.calib")
-    k = calibs.map{|c| c.pflux_graphkit(1)}.sum
-    k.ylabel = 'Gamma'
-    k
-  end
 
   include TrinityGraphKits
 
