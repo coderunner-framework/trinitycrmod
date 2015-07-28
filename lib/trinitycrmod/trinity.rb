@@ -402,7 +402,12 @@ class CodeRunner
             compdir = flux_folder_name(i) #  "flux_tube_#{i+1}"
             # Stop it actually checking the flux codes every time.
             component.instance_variable_set(:@status, :Complete)
-            Dir.chdir(compdir){component.process_directory} if FileTest.exist? compdir
+            eprint '...getting Trinity components..'
+            Dir.chdir(compdir){
+              eprint '.'
+              component.process_directory
+            } if FileTest.exist? compdir
+            eputs 'done'
           #}
           component.component_runs = []
           component.trinity_run = self
