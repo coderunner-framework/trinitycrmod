@@ -365,6 +365,7 @@ class CodeRunner
       if flux_gryfx? or flux_gs2?
         fclass = flux_class
 
+        eprint '...getting Trinity components..'
         for i in 0...n_flux_tubes
           component = @component_runs[i]
             #p [i, '9,', component, '4', !@component_runs[i]]; STDIN.gets
@@ -402,12 +403,10 @@ class CodeRunner
             compdir = flux_folder_name(i) #  "flux_tube_#{i+1}"
             # Stop it actually checking the flux codes every time.
             component.instance_variable_set(:@status, :Complete)
-            eprint '...getting Trinity components..'
             Dir.chdir(compdir){
               eprint '.'
               component.process_directory
             } if FileTest.exist? compdir
-            eputs 'done'
           #}
           component.component_runs = []
           component.trinity_run = self
@@ -420,6 +419,8 @@ class CodeRunner
           #pp component; STDIN.gets
           #component.component_runs = []
         end
+        eputs 'done'
+
       end
     end
 
