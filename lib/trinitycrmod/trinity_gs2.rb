@@ -49,6 +49,8 @@ class CodeRunner
       include TrinityComponent
     end
 
+    
+
 		# This function creates a new Trinity defaults file, with Trinity parameters taken from 
 		# trinity_input_file, and GS2 parameters taken from gs2_input_file. The file is then moved
 		# to the CodeRunner central defaults location, the current folder is configured to use 
@@ -173,4 +175,6 @@ EOF2
     end
 	end
 
+  # Backwards compatibility
+  Gs2::TrinityComponent = Trinity::TrinityComponent::Gs2
 end
