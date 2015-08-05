@@ -29,6 +29,7 @@ class CodeRunner
     require 'trinitycrmod/check_parameters'
     require 'trinitycrmod/actual_parameter_values'
     require 'trinitycrmod/chease'
+    require 'trinitycrmod/ecom'
     require 'trinitycrmod/calib'
     require 'trinitycrmod/flux_interpolator'
     require 'trinitycrmod/read_netcdf'
@@ -68,7 +69,7 @@ class CodeRunner
     @naming_pars = []
 
     #  Any folders which are a number will contain the results from flux simulations.
-    @excluded_sub_folders = (1...1000).to_a.map{|i| "flux_tube_" + i.to_s} + ['chease']
+    @excluded_sub_folders = (1...1000).to_a.map{|i| "flux_tube_" + i.to_s} + ['chease', 'ecom']
 
     #  A hook which gets called when printing the standard run information to the screen using the status command.
     def print_out_line
@@ -166,7 +167,11 @@ class CodeRunner
         if @restart_id
           @runner.run_list[@restart_id].restart(self)
         end
-        setup_chease if uses_chease?
+        if uses_ecom?
+          setup_ecom
+        elsif uses_chease?
+          setup_chease
+        end
         check_parameters
         write_input_file
         generate_flux_input_files if flux_gs2? or flux_gryfx?

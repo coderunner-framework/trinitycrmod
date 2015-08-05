@@ -5,6 +5,8 @@ source "http://rubygems.org"
    gem "text-data-tools", ">= 1.1.6"
 	 gem "gs2crmod", ">=0.11.76"
 	 gem "gryfxcrmod", ">=0.1.9"
+	 gem "cheasecrmod", ">=0.1.0"
+	 gem "ecomcrmod", ">=0.1.0"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

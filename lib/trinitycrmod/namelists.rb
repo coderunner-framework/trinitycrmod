@@ -481,7 +481,18 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[1]}}},
+       :autoscanned_defaults=>[1]},
+     :convergetol=>
+      {:should_include=>"true",
+       :description=>" convergence tolerance when seeking steady state",
+       :help=>" convergence tolerance when seeking steady state",
+       :code_name=>:convergetol,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]}}},
  :fluxes=>
   {:description=>"",
    :should_include=>"true",
@@ -912,8 +923,8 @@
        :autoscanned_defaults=>["default"]},
      :nifspppl_initial=>
       {:should_include=>"true",
-       :description=>" number of initial ifspppl runs",
-       :help=>" number of initial ifspppl runs",
+       :description=>" number of initial ifspppl_fluxes calls",
+       :help=>" number of initial ifspppl_fluxes calls",
        :code_name=>:nifspppl_initial,
        :must_pass=>
         [{:test=>"kind_of? integer",
@@ -922,8 +933,8 @@
        :autoscanned_defaults=>[-1]},
      :n_gpus=>
       {:should_include=>"true",
-       :description=>" for gryfx, number of avail gpus",
-       :help=>" for gryfx, number of avail gpus",
+       :description=>" For gryfx, number of avail gpus",
+       :help=>" For gryfx, number of avail gpus",
        :code_name=>:n_gpus,
        :must_pass=>
         [{:test=>"kind_of? integer",
@@ -942,15 +953,27 @@
        :autoscanned_defaults=>[""]},
      :replay_filename=>
       {:should_include=>"true",
-       :description=>
-        "Name of the netcdf output file that contains the fluxes to be read.",
-       :help=>
-        "If running in replay mode, gives the filename of the trinity netcdf output file that contains the fluxes to be read.",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:replay_filename,
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
-       :type=>:String}}},
+       :type=>:String,
+       :autoscanned_defaults=>[""]},
+     :tite=>
+      {:should_include=>"true",
+       :description=>
+        " If you are not evolving the electrons, set Te = main ion temp/tite. Set < 0 to disable",
+       :help=>
+        " If you are not evolving the electrons, set Te = main ion temp/tite. Set < 0 to disable",
+       :code_name=>:tite,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
