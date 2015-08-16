@@ -18,6 +18,8 @@ class CodeRunner
     CodeRunner.setup_run_class('gryfx')
     require 'trinitycrmod/trinity_gs2'
 
+    CodeRunner.setup_run_class('ecom')
+
     # Where this file is
     @code_module_folder = File.dirname(File.expand_path(__FILE__)) # i.e. the directory this file is in
 

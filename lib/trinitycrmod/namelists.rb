@@ -1215,7 +1215,18 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["restart.itercalib"]}}},
+       :autoscanned_defaults=>["restart.itercalib"]},
+     :density_boost=>
+      {:should_include=>"true",
+       :description=>"If > 0 multiplies density and divides temperature.",
+       :help=>
+        "For use with CHEASE/ECOM... if > 0 multiplies density and divides temperature, that is, it changes the density at constant pressure",
+       :code_name=>:density_boost,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :sources=>
   {:description=>"",
    :should_include=>"true",
