@@ -11,7 +11,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["analytic", "default"]},
      :geo_file=>
       {:should_include=>"true",
        :description=>" file with input data",
@@ -43,7 +43,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.95]},
+       :autoscanned_defaults=>[0.8, 0.95]},
      :nrad=>
       {:should_include=>"true",
        :description=>" number of radial grid points",
@@ -53,7 +53,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[9]},
+       :autoscanned_defaults=>[8, 9]},
      :bt_in=>
       {:should_include=>"true",
        :description=>
@@ -77,7 +77,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.0]},
+       :autoscanned_defaults=>[1.0]},
      :rgeo_in=>
       {:should_include=>"true",
        :description=>" geometric major radius at LCFS (in meters)",
@@ -88,7 +88,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.0]},
+       :autoscanned_defaults=>[3.0]},
      :q0=>
       {:should_include=>"true",
        :description=>" value of q at core of profile",
@@ -176,7 +176,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["aminor", "default"]},
      :phia_in=>
       {:should_include=>"true",
        :description=>
@@ -240,75 +240,48 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]}}},
- :species=>
-  {:description=>"",
-   :should_include=>"true",
-   :variables=>
-    {:species_option=>
+       :autoscanned_defaults=>[".false."]},
+     :grho_in=>
       {:should_include=>"true",
-       :description=>" construct species profiles from following parameters",
-       :help=>" construct species profiles from following parameters",
-       :code_name=>:species_option,
-       :must_pass=>
-        [{:test=>"kind_of? String",
-          :explanation=>"This variable must be a string."}],
-       :type=>:String,
-       :autoscanned_defaults=>["default"]},
-     :species_file=>
-      {:should_include=>"true",
-       :description=>" file with input data",
-       :help=>" file with input data",
-       :code_name=>:species_file,
-       :must_pass=>
-        [{:test=>"kind_of? String",
-          :explanation=>"This variable must be a string."}],
-       :type=>:String,
-       :autoscanned_defaults=>["geo_file"]},
-     :species_time=>
-      {:should_include=>"true",
-       :description=>" target time to sample experimental data (in seconds)",
-       :help=>" target time to sample experimental data (in seconds)",
-       :code_name=>:species_time,
+       :description=>" overrides the value of grho if > 0",
+       :help=>" overrides the value of grho if > 0",
+       :code_name=>:grho_in,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>["geo_time"]},
-     :ntspec=>
-      {:should_include=>"true",
-       :description=>" number of species to evolve (profiles)",
-       :help=>" number of species to evolve (profiles)",
-       :code_name=>:ntspec,
-       :must_pass=>
-        [{:test=>"kind_of? Integer",
-          :explanation=>"This variable must be an integer."}],
-       :type=>:Integer,
-       :autoscanned_defaults=>[2]},
-     :qi=>
+       :autoscanned_defaults=>[-1.0]}}},
+ :species=>
+  {:description=>"",
+   :should_include=>"true",
+   :variables=>
+    {:qi=>
       {:should_include=>"true",
        :description=>
-        " simulated ion species charge (in units of fundamental charge)",
-       :help=>" simulated ion species charge (in units of fundamental charge)",
+        " outdated main ion charge (kept for backward compatibility)       ",
+       :help=>
+        " outdated main ion charge (kept for backward compatibility)       ",
        :code_name=>:qi,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]},
+       :autoscanned_defaults=>[-1.0, 1.0]},
      :mi=>
       {:should_include=>"true",
-       :description=>" ion mass (in units of proton mass)",
-       :help=>" ion mass (in units of proton mass)",
+       :description=>
+        " old variable for primary ion species mass (kept for backward compatibility)",
+       :help=>
+        " old variable for primary ion species mass (kept for backward compatibility)",
        :code_name=>:mi,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[2.0]},
+       :autoscanned_defaults=>[-1.0, 1.0]},
      :zeff_in=>
       {:should_include=>"true",
        :description=>" effective charge",
@@ -331,7 +304,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[1]},
+       :autoscanned_defaults=>[-1]},
      :tritium=>
       {:should_include=>"true",
        :description=>
@@ -343,7 +316,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[2]},
+       :autoscanned_defaults=>[-1]},
      :impurity=>
       {:should_include=>"true",
        :description=>
@@ -355,29 +328,122 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[3]},
+       :autoscanned_defaults=>[-1]},
      :mimp=>
       {:should_include=>"true",
-       :description=>" main impurity mass (in units of proton mass)",
-       :help=>" main impurity mass (in units of proton mass)",
+       :description=>
+        " old variable for main impurity mass (kept for backward compatibility)",
+       :help=>
+        " old variable for main impurity mass (kept for backward compatibility)",
        :code_name=>:mimp,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[12.0]},
+       :autoscanned_defaults=>[-1.0]},
      :zimp=>
       {:should_include=>"true",
-       :description=>" main impurity charge number",
-       :help=>" main impurity charge number",
+       :description=>
+        " old variable for main impurity charge number (kept for backward compatibility)",
+       :help=>
+        " old variable for main impurity charge number (kept for backward compatibility)",
        :code_name=>:zimp,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[6.0]}}},
+       :autoscanned_defaults=>[-1.0]},
+     :n_ion_spec=>
+      {:should_include=>"true",
+       :description=>" number of ion species to evolve",
+       :help=>" number of ion species to evolve",
+       :code_name=>:n_ion_spec,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[1]},
+     :z_ion_1=>
+      {:should_include=>"true",
+       :description=>
+        " simulated primary ion species charge (in units of fundamental charge)",
+       :help=>
+        " simulated primary ion species charge (in units of fundamental charge)",
+       :code_name=>:z_ion_1,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[-1]},
+     :z_ion_2=>
+      {:should_include=>"true",
+       :description=>
+        " simulated secondary ion species charge (in units of fundamental charge)",
+       :help=>
+        " simulated secondary ion species charge (in units of fundamental charge)",
+       :code_name=>:z_ion_2,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[-1]},
+     :z_ion_3=>
+      {:should_include=>"true",
+       :description=>
+        " simulated tertiary ion species charge (in units of fundamental charge)",
+       :help=>
+        " simulated tertiary ion species charge (in units of fundamental charge)",
+       :code_name=>:z_ion_3,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[-1]},
+     :m_ion_1=>
+      {:should_include=>"true",
+       :description=>" simulated primary ion mass (in units of proton mass)",
+       :help=>" simulated primary ion mass (in units of proton mass)",
+       :code_name=>:m_ion_1,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]},
+     :m_ion_2=>
+      {:should_include=>"true",
+       :description=>" simulated secondary ion mass (in units of proton mass)",
+       :help=>" simulated secondary ion mass (in units of proton mass)",
+       :code_name=>:m_ion_2,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]},
+     :m_ion_3=>
+      {:should_include=>"true",
+       :description=>" simulated tertiary ion mass (in units of proton mass)",
+       :help=>" simulated tertiary ion mass (in units of proton mass)",
+       :code_name=>:m_ion_3,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]},
+     :is_ref=>
+      {:should_include=>"true",
+       :description=>" index of reference species in flux calculation",
+       :help=>" index of reference species in flux calculation",
+       :code_name=>:is_ref,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[2]}}},
  :time=>
   {:description=>"",
    :should_include=>"true",
@@ -391,7 +457,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[20]},
+       :autoscanned_defaults=>[10, 20]},
      :niter=>
       {:should_include=>"true",
        :description=>" max number of newton iterations per time step",
@@ -412,7 +478,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.01]},
+       :autoscanned_defaults=>[0.01, 0.2]},
      :ntdelt_max=>
       {:should_include=>"true",
        :description=>" maximum size of transport time step",
@@ -446,7 +512,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.2]},
+       :autoscanned_defaults=>[0.2, 1.0]},
      :errflr=>
       {:should_include=>"true",
        :description=>" relative error below which we stop iterating",
@@ -457,7 +523,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.005]},
+       :autoscanned_defaults=>[0.005, 0.03]},
      :flrfac=>
       {:should_include=>"true",
        :description=>
@@ -470,7 +536,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[2.0]},
+       :autoscanned_defaults=>[1.0, 2.0]},
      :nensembles=>
       {:should_include=>"true",
        :description=>
@@ -481,18 +547,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[1]},
-     :convergetol=>
-      {:should_include=>"true",
-       :description=>" convergence tolerance when seeking steady state",
-       :help=>" convergence tolerance when seeking steady state",
-       :code_name=>:convergetol,
-       :must_pass=>
-        [{:test=>"kind_of? Numeric",
-          :explanation=>
-           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float,
-       :autoscanned_defaults=>[-1.0]}}},
+       :autoscanned_defaults=>[1]}}},
  :fluxes=>
   {:description=>"",
    :should_include=>"true",
@@ -506,7 +561,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["default", "test1"]},
      :flxmult=>
       {:should_include=>"true",
        :description=>" coefficient multiplying fluxes (for testing)",
@@ -573,16 +628,6 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :autoscanned_defaults=>[0.1]},
-     :grad_option=>
-      {:should_include=>"true",
-       :description=>" option determining which equilibrium gradients to vary",
-       :help=>" option determining which equilibrium gradients to vary",
-       :code_name=>:grad_option,
-       :must_pass=>
-        [{:test=>"kind_of? String",
-          :explanation=>"This variable must be a string."}],
-       :type=>:String,
-       :autoscanned_defaults=>["default"]},
      :dfprim=>
       {:should_include=>"true",
        :description=>" step size for R/Ln is -R/Ln * dfprim",
@@ -593,7 +638,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.1]},
+       :autoscanned_defaults=>[0.1, 1.0]},
      :dtprim=>
       {:should_include=>"true",
        :description=>" step size for R/LT is R/LT * dtprim",
@@ -604,7 +649,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.1]},
+       :autoscanned_defaults=>[0.1, 1.0]},
      :dgexb=>
       {:should_include=>"true",
        :description=>" step size for gexb is gexb * dgexb",
@@ -648,7 +693,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :dflx_stencil=>
       {:should_include=>"true",
        :description=>" number of fluxes to use for flux derivatives",
@@ -728,29 +773,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.2]},
-     :dti=>
-      {:should_include=>"true",
-       :description=>" step size for Ti is Ti * dti",
-       :help=>" step size for Ti is Ti * dti",
-       :code_name=>:dti,
-       :must_pass=>
-        [{:test=>"kind_of? Numeric",
-          :explanation=>
-           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float,
-       :autoscanned_defaults=>[0.2]},
-     :dte=>
-      {:should_include=>"true",
-       :description=>" step size for Te is Te * dte",
-       :help=>" step size for Te is Te * dte",
-       :code_name=>:dte,
-       :must_pass=>
-        [{:test=>"kind_of? Numeric",
-          :explanation=>
-           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float,
-       :autoscanned_defaults=>[0.2]},
+       :autoscanned_defaults=>[0.0, 0.2]},
      :dom=>
       {:should_include=>"true",
        :description=>
@@ -961,19 +984,17 @@
           :explanation=>"This variable must be a string."}],
        :type=>:String,
        :autoscanned_defaults=>[""]},
-     :tite=>
+     :dtemp=>
       {:should_include=>"true",
-       :description=>
-        " If you are not evolving the electrons, set Te = main ion temp/tite. Set < 0 to disable",
-       :help=>
-        " If you are not evolving the electrons, set Te = main ion temp/tite. Set < 0 to disable",
-       :code_name=>:tite,
+       :description=>" step size for temperature is temperature * dtemp",
+       :help=>" step size for temperature is temperature * dtemp",
+       :code_name=>:dtemp,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[-1.0]}}},
+       :autoscanned_defaults=>[0.2]}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
@@ -987,7 +1008,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["analytic", "default"]},
      :init_file=>
       {:should_include=>"true",
        :description=>" file with input data",
@@ -1009,17 +1030,6 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :autoscanned_defaults=>["geo_time"]},
-     :rln=>
-      {:should_include=>"true",
-       :description=>" initial R/Ln",
-       :help=>" initial R/Ln",
-       :code_name=>:rln,
-       :must_pass=>
-        [{:test=>"kind_of? Numeric",
-          :explanation=>
-           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float,
-       :autoscanned_defaults=>[0.0, 1.0]},
      :rlti=>
       {:should_include=>"true",
        :description=>" initial R/LTi",
@@ -1041,20 +1051,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.0, 4.0]},
-     :nedge=>
-      {:should_include=>"true",
-       :description=>
-        " initial density offset. if positive, override init_option for dens",
-       :help=>
-        " initial density offset. if positive, override init_option for dens",
-       :code_name=>:nedge,
-       :must_pass=>
-        [{:test=>"kind_of? Numeric",
-          :explanation=>
-           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float,
-       :autoscanned_defaults=>[-1.0]},
+       :autoscanned_defaults=>[4.0]},
      :tiedge=>
       {:should_include=>"true",
        :description=>
@@ -1126,15 +1123,15 @@
        :autoscanned_defaults=>[-1.0]},
      :rll=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" initial R/LL",
+       :help=>" initial R/LL",
        :code_name=>:rll,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[]},
+       :autoscanned_defaults=>[0.0]},
      :iternt_file=>
       {:should_include=>"true",
        :description=>
@@ -1216,12 +1213,41 @@
           :explanation=>"This variable must be a string."}],
        :type=>:String,
        :autoscanned_defaults=>["restart.itercalib"]},
-     :density_boost=>
+     :rlni=>
       {:should_include=>"true",
-       :description=>"If > 0 multiplies density and divides temperature.",
-       :help=>
-        "For use with CHEASE/ECOM... if > 0 multiplies density and divides temperature, that is, it changes the density at constant pressure",
-       :code_name=>:density_boost,
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:rlni,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :rlne=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:rlne,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :niedge=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:niedge,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :needge=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:needge,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
@@ -1240,7 +1266,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["analytic", "default"]},
      :source_file=>
       {:should_include=>"true",
        :description=>" file with input data",
@@ -1262,17 +1288,6 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :autoscanned_defaults=>["geo_time"]},
-     :powerin=>
-      {:should_include=>"true",
-       :description=>" external power input (in MW)",
-       :help=>" external power input (in MW)",
-       :code_name=>:powerin,
-       :must_pass=>
-        [{:test=>"kind_of? Numeric",
-          :explanation=>
-           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float,
-       :autoscanned_defaults=>[50.0]},
      :psig=>
       {:should_include=>"true",
        :description=>
@@ -1296,17 +1311,6 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :autoscanned_defaults=>[0.0]},
-     :src_ratio=>
-      {:should_include=>"true",
-       :description=>" fraction of external power going to ions",
-       :help=>" fraction of external power going to ions",
-       :code_name=>:src_ratio,
-       :must_pass=>
-        [{:test=>"kind_of? Numeric",
-          :explanation=>
-           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float,
-       :autoscanned_defaults=>[0.5]},
      :densin=>
       {:should_include=>"true",
        :description=>" external density input",
@@ -1351,7 +1355,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :include_radiation=>
       {:should_include=>"true",
        :description=>" include bremstrahlung radiation",
@@ -1362,7 +1366,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :pioq=>
       {:should_include=>"true",
        :description=>" ratio of momentum to heat input",
@@ -1381,17 +1385,6 @@
        :help=>
         " true writes out various terms in transport equation each time step",
        :code_name=>:write_balance,
-       :must_pass=>
-        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
-          :explanation=>
-           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]},
-     :write_smooth=>
-      {:should_include=>"true",
-       :description=>" true writes out smoothed profiles",
-       :help=>" true writes out smoothed profiles",
-       :code_name=>:write_smooth,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -1484,7 +1477,49 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[-1.0]}}},
+       :autoscanned_defaults=>[-1.0]},
+     :e_powerin=>
+      {:should_include=>"true",
+       :description=>" external electron power input (in MW)",
+       :help=>" external electron power input (in MW)",
+       :code_name=>:e_powerin,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[10.0]},
+     :i_powerin_1=>
+      {:should_include=>"true",
+       :description=>" external primary ion power input (in MW)",
+       :help=>" external primary ion power input (in MW)",
+       :code_name=>:i_powerin_1,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[40.0]},
+     :i_powerin_2=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:i_powerin_2,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :i_powerin_3=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:i_powerin_3,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :physics=>
   {:description=>"",
    :should_include=>"true",
@@ -1501,7 +1536,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :temp_equil=>
       {:should_include=>"true",
        :description=>" set to false to neglect temperature equilibration",
@@ -1512,7 +1547,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :turb_heat=>
       {:should_include=>"true",
        :description=>" set to false to neglect turbulent heating",
@@ -1523,7 +1558,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :numult=>
       {:should_include=>"true",
        :description=>" multiplier of collision frequency for testing",
@@ -1545,4 +1580,64 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]}}}}
+       :autoscanned_defaults=>[".true."]},
+     :evolve_density=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:evolve_density,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :evolve_temperature=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:evolve_temperature,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :evolve_flow=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:evolve_flow,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :te_equal_ti=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:te_equal_ti,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :equal_ion_temps=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:equal_ion_temps,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :te_fixed=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:te_fixed,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}}}
