@@ -81,7 +81,7 @@ class CodeRunner
       name += " (res: #@restart_id)" if @restart_id
       name += " real_id: #@real_id" if @real_id
       beginning = sprintf("%2d:%d %-60s %1s:%2.1f(%s) %3s%1s",  @id, @job_no, name, @status.to_s[0,1],  @run_time.to_f / 60.0, @nprocs.to_s, percent_complete, "%")
-      if ctd
+      if ctd and fusionQ
         beginning += sprintf("Q:%f, Pfusion:%f MW, Ti0:%f keV, Te0:%f keV, n0:%f x10^20", fusionQ, pfus, ti0, te0, ne0)
       end
       beginning += "  ---#{@comment}" if @comment
@@ -453,7 +453,7 @@ class CodeRunner
       get_status
       #p ['id is', id, 'ctd is ', ctd]
       if ctd
-        get_global_results
+        #get_global_results
       end
       #p ['fusionQ is ', fusionQ]
       @percent_complete = completed_timesteps.to_f / ntstep.to_f * 100.0
