@@ -247,18 +247,31 @@ class CodeRunner
     # The number of separate flux tube results needed for the jacobian
     def n_flux_tubes_jac
       d1 = dflx_stencil_actual - 1
-      ngrads =d1 * case @grad_option
-                    when "tigrad", "ngrad", "lgrad"
-                      1
-                    when "tgrads"
-                      2
-                    when "ltgrads", "ntgrads"
-                      3
-                    when "all"
-                      4
-                    else
-                      raise "unknown grad_option: #@grad_option"
-                    end
+      ngrads = d1 * case @grad_option
+      when nil
+        n = 0
+        n = n + @nspec-1 if (evolve_density_actual.fortran_true?) 
+        if (evolve_temperature_actual.fortran_true?) 
+          if (equal_ion_temps_actual.fortran_true?) then
+            n = n + 1
+          else
+            n = n + n_ion_spec
+          end 
+          n=n+1 if (te_equal_ti_actual.fortran_false? and te_fixed_actual.fortran_false?)
+          n = n + 1 if (evolve_flow_actual.fortran_true?)
+        end
+        n
+      when "tigrad", "ngrad", "lgrad"
+        1
+      when "tgrads"
+        2
+      when "ltgrads", "ntgrads"
+        3
+      when "all"
+        4
+      else
+        raise "unknown grad_option: #@grad_option"
+      end
       if evolve_grads_only_actual.fortran_true?
         njac = ngrads + 1
       else
