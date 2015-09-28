@@ -382,6 +382,12 @@ class CodeRunner
     def generate_component_runs
       #puts "HERE"
       @component_runs ||= []
+      if @running
+        if existing = @runner.component_run_list.find{|r| r.real_id==@id}
+          @component_runs = existing.sort_by{|r| -r.id}
+          return
+        end
+      end
       if flux_gryfx? or flux_gs2?
         fclass = flux_class
 
