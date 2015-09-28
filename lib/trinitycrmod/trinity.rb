@@ -250,7 +250,7 @@ class CodeRunner
       ngrads = d1 * case @grad_option
       when nil
         n = 0
-        n = n + @nspec-1 if (evolve_density_actual.fortran_true?) 
+        n = n + @n_ion_spec if (evolve_density_actual.fortran_true?) 
         if (evolve_temperature_actual.fortran_true?) 
           if (equal_ion_temps_actual.fortran_true?) then
             n = n + 1
