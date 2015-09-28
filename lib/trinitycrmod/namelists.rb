@@ -1215,44 +1215,50 @@
        :autoscanned_defaults=>["restart.itercalib"]},
      :rlni=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" initial R/Lni",
+       :help=>" initial R/Lni",
        :code_name=>:rlni,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>[1.0]},
      :rlne=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" initial R/Lne",
+       :help=>" initial R/Lne",
        :code_name=>:rlne,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>[1.0]},
      :niedge=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        " initial ni offset. if positive, override init_option for dens",
+       :help=>" initial ni offset. if positive, override init_option for dens",
        :code_name=>:niedge,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]},
      :needge=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        " initial ne offset. if positive, override init_option for dens",
+       :help=>" initial ne offset. if positive, override init_option for dens",
        :code_name=>:needge,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}},
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]}}},
  :sources=>
   {:description=>"",
    :should_include=>"true",
@@ -1502,24 +1508,39 @@
        :autoscanned_defaults=>[40.0]},
      :i_powerin_2=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" external secondary ion power input (in MW)",
+       :help=>" external secondary ion power input (in MW)",
        :code_name=>:i_powerin_2,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>[0.0]},
      :i_powerin_3=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" external tertiary ion power input (in MW)",
+       :help=>" external tertiary ion power input (in MW)",
        :code_name=>:i_powerin_3,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}},
+       :type=>:Float,
+       :autoscanned_defaults=>[0.0]},
+     :dens_mult=>
+      {:should_include=>"true",
+       :description=>
+        " multiplies overall density source when using the tokamak profile db, may not be self consistent when using TORQ for torque input (as opposed to pioq)",
+       :help=>
+        " multiplies overall density source when using the tokamak profile db, may not be self consistent when using TORQ for torque input (as opposed to pioq)",
+       :code_name=>:dens_mult,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[1.0]}}},
  :physics=>
   {:description=>"",
    :should_include=>"true",
@@ -1583,61 +1604,70 @@
        :autoscanned_defaults=>[".true."]},
      :evolve_density=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" if true, evolve density profile(s)",
+       :help=>" if true, evolve density profile(s)",
        :code_name=>:evolve_density,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
      :evolve_temperature=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" if true, evolve temperature profile(s)",
+       :help=>" if true, evolve temperature profile(s)",
        :code_name=>:evolve_temperature,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
      :evolve_flow=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" if true, evolve toroidal angular momentum",
+       :help=>" if true, evolve toroidal angular momentum",
        :code_name=>:evolve_flow,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
      :te_equal_ti=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        " if true, Te is set equal to Ti instead of being evolved",
+       :help=>" if true, Te is set equal to Ti instead of being evolved",
        :code_name=>:te_equal_ti,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]},
      :equal_ion_temps=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>
+        " if true, temperature of all ion species is assumed to be the same",
+       :help=>
+        " if true, temperature of all ion species is assumed to be the same",
        :code_name=>:equal_ion_temps,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
      :te_fixed=>
       {:should_include=>"true",
-       :description=>nil,
-       :help=>nil,
+       :description=>" if true, electron temperature stays at initial value",
+       :help=>" if true, electron temperature stays at initial value",
        :code_name=>:te_fixed,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}}}
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".false."]}}}}
