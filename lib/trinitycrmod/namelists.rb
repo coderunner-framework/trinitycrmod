@@ -994,7 +994,19 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.2]}}},
+       :autoscanned_defaults=>[0.2]},
+     :single_radius=>
+      {:should_include=>"true",
+       :description=>
+        " If > 0 then run single flux tube at rad_grid(single_radius) and quit (i.e. use Trinity as driver for the flux calc)",
+       :help=>
+        " If > 0 then run single flux tube at rad_grid(single_radius) and quit (i.e. use Trinity as driver for the flux calc)",
+       :code_name=>:single_radius,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[-1]}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
