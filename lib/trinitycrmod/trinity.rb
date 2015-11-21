@@ -383,7 +383,7 @@ class CodeRunner
       #puts "HERE"
       @component_runs ||= []
       if @running
-        if existing = @runner.component_run_list.find{|r| r.real_id==@id}
+        if existing = @runner.component_run_list.values.find_all{|r| r.real_id==@id}
           @component_runs = existing.sort_by{|r| -r.id}
           return
         end
@@ -503,10 +503,10 @@ class CodeRunner
       @aux_power = info_outfile.get_variable_value(/aux.*\s+power/i).to_f
       @alpha_power = info_outfile.get_variable_value(/alpha\s+power/i).to_f
       @rad_power = info_outfile.get_variable_value(/radiated\s+power/i).to_f
-      @ne0 = info_outfile.get_variable_value(/core\s+density/i).to_f
-      @ti0 = info_outfile.get_variable_value(/core\s+T_i/i).to_f
-      @te0 = info_outfile.get_variable_value(/core\s+T_e/i).to_f
-      @omega0 = info_outfile.get_variable_value(/core\s+omega/i).to_f rescue 0.0 # Old info files don't have omega
+      @ne0 = info_outfile.get_variable_value(/core\s+density|Core\s+electron\s+density/i).to_f
+      @ti0 = info_outfile.get_variable_value(/[Cc]ore\s+T_i/i).to_f
+      @te0 = info_outfile.get_variable_value(/[Cc]ore\s+T_e/i).to_f
+      @omega0 = info_outfile.get_variable_value(/[Cc]ore\s+omega/i).to_f rescue 0.0 # Old info files don't have omega
       #p 'send(fusionQ)', send(:fusionQ)
     end
 

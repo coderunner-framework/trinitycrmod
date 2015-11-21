@@ -16,12 +16,18 @@ class CodeRunner::Trinity
       FileUtils.cp_r(@gs_folder, 'chease')
       chrun = chease_run
       chrun.neqdsk = 0 # Use EXPEQ
-      chrun.nsurf = 6
+      chrun.nsurf = 6 # Outer surface from EXPEQ
       puts ['chrun2', chrun.nsurf]
       chrun.nppfun = 4 # Pres profile from EXPEQ
       chrun.nfunc = 4 # Current func
       chrun.nopt = -1 # Use prev soln for initial 
-      Dir.chdir(@directory + '/chease/'){chrun.write_input_file}
+      chrun.nblopt = 0 # Don't modify the pressure profile 
+      Dir.chdir(@directory + '/chease/'){
+        chrun.write_input_file
+        FileUtils.cp('NOUT', 'NIN')
+      }
+    elsif @gs_folder
+      FileUtils.cp_r(@gs_folder, 'chease')
     else
       FileUtils.mkdir('chease') unless FileTest.exist? 'chease'
       origfile = @runner.root_folder + '/ogyropsi.dat'

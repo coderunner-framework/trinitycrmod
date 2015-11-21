@@ -116,17 +116,6 @@
        "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
    :type=>:Float,
    :autoscanned_defaults=>[]},
- :density_boost=>
-  {:should_include=>"true",
-   :description=>nil,
-   :help=>nil,
-   :code_name=>:density_boost,
-   :must_pass=>
-    [{:test=>"kind_of? Numeric",
-      :explanation=>
-       "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-   :type=>:Float,
-   :autoscanned_defaults=>[]},
  :powerin=>
   {:should_include=>"true",
    :description=>nil,
