@@ -104,7 +104,7 @@ class NetcdfSmartReader
     when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad', 'eval'
       return GraphKit::AxisKit.autocreate(data: GSL::Vector.linspace(1, sz=@file.dim(variable).length, sz), title: variable)
     end
-    GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('units').get, title: @file.var(variable).att('description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, ''))
+    GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('units').get, title: @file.var(variable).att('description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, '').sub(/.*rho.*The definition.*/, 'rho'))
   end
   def dimension_variable_name(n)
     case n
