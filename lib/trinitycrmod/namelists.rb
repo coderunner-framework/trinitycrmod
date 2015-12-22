@@ -1028,6 +1028,17 @@
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
        :autoscanned_defaults=>[-1]},
+     :flux_driver=>
+      {:should_include=>"true",
+       :description=>" If true, run flux simulations for the cell centres then quit ",
+       :help=>" If true, run flux simulations for the cell centres then quit",
+       :code_name=>:flux_driver,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
      :ifspppl_bmag=>
       {:should_include=>"true",
        :description=>
