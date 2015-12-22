@@ -11,7 +11,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["analytic", "default"]},
      :geo_file=>
       {:should_include=>"true",
        :description=>" file with input data",
@@ -43,7 +43,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.95]},
+       :autoscanned_defaults=>[0.8, 0.95]},
      :nrad=>
       {:should_include=>"true",
        :description=>" number of radial grid points",
@@ -53,7 +53,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[9]},
+       :autoscanned_defaults=>[8, 9]},
      :bt_in=>
       {:should_include=>"true",
        :description=>
@@ -176,7 +176,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["aminor", "default"]},
      :phia_in=>
       {:should_include=>"true",
        :description=>
@@ -289,7 +289,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[-1.0]},
+       :autoscanned_defaults=>[-1.0, 1.0]},
      :mi=>
       {:should_include=>"true",
        :description=>
@@ -302,7 +302,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[-1.0]},
+       :autoscanned_defaults=>[-1.0, 1.0]},
      :zeff_in=>
       {:should_include=>"true",
        :description=>" effective charge",
@@ -478,7 +478,7 @@
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[20]},
+       :autoscanned_defaults=>[10, 20]},
      :niter=>
       {:should_include=>"true",
        :description=>" max number of newton iterations per time step",
@@ -499,7 +499,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.01]},
+       :autoscanned_defaults=>[0.01, 0.2]},
      :ntdelt_max=>
       {:should_include=>"true",
        :description=>" maximum size of transport time step",
@@ -533,7 +533,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.2]},
+       :autoscanned_defaults=>[0.2, 1.0]},
      :errflr=>
       {:should_include=>"true",
        :description=>" relative error below which we stop iterating",
@@ -544,7 +544,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.005]},
+       :autoscanned_defaults=>[0.005, 0.03]},
      :flrfac=>
       {:should_include=>"true",
        :description=>
@@ -557,7 +557,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[2.0]},
+       :autoscanned_defaults=>[1.0, 2.0]},
      :nensembles=>
       {:should_include=>"true",
        :description=>
@@ -582,7 +582,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["default", "test1"]},
      :flxmult=>
       {:should_include=>"true",
        :description=>" coefficient multiplying fluxes (for testing)",
@@ -659,7 +659,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.1]},
+       :autoscanned_defaults=>[0.1, 1.0]},
      :dtprim=>
       {:should_include=>"true",
        :description=>" step size for R/LT is R/LT * dtprim",
@@ -670,7 +670,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[0.1]},
+       :autoscanned_defaults=>[0.1, 1.0]},
      :dgexb=>
       {:should_include=>"true",
        :description=>" step size for gexb is gexb * dgexb",
@@ -714,7 +714,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :dflx_stencil=>
       {:should_include=>"true",
        :description=>" number of fluxes to use for flux derivatives",
@@ -783,7 +783,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[2.0]},
+       :autoscanned_defaults=>[2, 2.0]},
      :ddens=>
       {:should_include=>"true",
        :description=>" step size for density is -density * ddens",
@@ -1019,9 +1019,9 @@
      :single_radius=>
       {:should_include=>"true",
        :description=>
-        " If > 0 then run single flux tube at rad_grid(single_radius) and quit (i.e. use Trinity as driver for the flux calc)",
+        " If > 0 then run single flux tube at cc_grid(single_radius). All the rest of the fluxes will be the matched fluxes",
        :help=>
-        " If > 0 then run single flux tube at rad_grid(single_radius) and quit (i.e. use Trinity as driver for the flux calc)",
+        " If > 0 then run single flux tube at cc_grid(single_radius). All the rest of the fluxes will be the matched fluxes",
        :code_name=>:single_radius,
        :must_pass=>
         [{:test=>"kind_of? Integer",
@@ -1038,14 +1038,24 @@
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
-       :type=>:String},
+       :type=>:String,
+       :autoscanned_defaults=>["trinity"]},
      :override_collisionality=>
       {:should_include=>"true",
-       :description=>
-        " If true, override the collisionality that is self-consistently from the profiles (i.e. use the collisionality which is set manually within gs2, gryfx, etc)",
-       :help=>
-        " If true, override the collisionality that is self-consistently from the profiles (i.e. use the collisionality which is set manually within gs2, gryfx, etc)",
+       :description=>nil,
+       :help=>nil,
        :code_name=>:override_collisionality,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[]},
+     :flux_driver=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:flux_driver,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
@@ -1064,7 +1074,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["analytic", "default"]},
      :init_file=>
       {:should_include=>"true",
        :description=>" file with input data",
@@ -1328,7 +1338,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["default"]},
+       :autoscanned_defaults=>["analytic", "default"]},
      :source_file=>
       {:should_include=>"true",
        :description=>" file with input data",
@@ -1417,7 +1427,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :include_radiation=>
       {:should_include=>"true",
        :description=>" include bremstrahlung radiation",
@@ -1428,7 +1438,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :pioq=>
       {:should_include=>"true",
        :description=>" ratio of momentum to heat input",
