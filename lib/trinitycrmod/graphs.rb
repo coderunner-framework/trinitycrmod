@@ -191,7 +191,7 @@ class CodeRunner::Trinity
   # This is the hook that is called by CodeRunner, providing the
   # graphkit with the given name and functions to the CodeRunner framework 
   def graphkit(name, options)
-    [:t].each do |var|
+    NetcdfSmartReader.dimensions.map{|d| d.to_sym}.each do |var|
       #ep 'index', var
       if options[var].class == Symbol and options[var] == :all
         options[var] = list(var).values

@@ -180,9 +180,9 @@
      :phia_in=>
       {:should_include=>"true",
        :description=>
-        " if phia_in > 0.0 and overwrite_db_input=T, set phia = phia_in (phia is sqrt(tor flux) at separatrix)",
+        " if phia_in > 0.0 and overwrite_db_input=T, set psitor_a = phia_in (psitor_a is sqrt(tor flux) at separatrix)",
        :help=>
-        " if phia_in > 0.0 and overwrite_db_input=T, set phia = phia_in (phia is sqrt(tor flux) at separatrix)",
+        " if phia_in > 0.0 and overwrite_db_input=T, set psitor_a = phia_in (psitor_a is sqrt(tor flux) at separatrix)",
        :code_name=>:phia_in,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
@@ -246,6 +246,27 @@
        :description=>" overrides the value of grho if > 0",
        :help=>" overrides the value of grho if > 0",
        :code_name=>:grho_in,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]},
+     :nrad_netcdf=>
+      {:should_include=>"true",
+       :description=>" # of radial points in netcdf output (=nrad if <0)",
+       :help=>" # of radial points in netcdf output (=nrad if <0)",
+       :code_name=>:nrad_netcdf,
+       :must_pass=>
+        [{:test=>"kind_of? Integer",
+          :explanation=>"This variable must be an integer."}],
+       :type=>:Integer,
+       :autoscanned_defaults=>[-1]},
+     :rad_out_netcdf=>
+      {:should_include=>"true",
+       :description=>" outer radial boundary (=rad_out if < 0)",
+       :help=>" outer radial boundary (=rad_out if < 0)",
+       :code_name=>:rad_out_netcdf,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
@@ -773,7 +794,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[2.0]},
+       :autoscanned_defaults=>[2, 2.0]},
      :ddens=>
       {:should_include=>"true",
        :description=>" step size for density is -density * ddens",
@@ -1009,15 +1030,59 @@
      :single_radius=>
       {:should_include=>"true",
        :description=>
-        " If > 0 then run single flux tube at rad_grid(single_radius) and quit (i.e. use Trinity as driver for the flux calc)",
+        " If > 0 then run single flux tube at cc_grid(single_radius). All the rest of the fluxes will be the matched fluxes",
        :help=>
-        " If > 0 then run single flux tube at rad_grid(single_radius) and quit (i.e. use Trinity as driver for the flux calc)",
+        " If > 0 then run single flux tube at cc_grid(single_radius). All the rest of the fluxes will be the matched fluxes",
        :code_name=>:single_radius,
        :must_pass=>
         [{:test=>"kind_of? Integer",
           :explanation=>"This variable must be an integer."}],
        :type=>:Integer,
-       :autoscanned_defaults=>[-1]}}},
+       :autoscanned_defaults=>[-1]},
+     :flux_driver=>
+      {:should_include=>"true",
+       :description=>" If true, run flux simulations for the cell centres then quit ",
+       :help=>" If true, run flux simulations for the cell centres then quit",
+       :code_name=>:flux_driver,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
+     :ifspppl_bmag=>
+      {:should_include=>"true",
+       :description=>
+        " Specify which magnetic field to use with ifspppl. Set to 'trinity' unless you know what you are doing. Other choices are: 'bunit'",
+       :help=>
+        " Specify which magnetic field to use with ifspppl. Set to 'trinity' unless you know what you are doing. Other choices are: 'bunit'",
+       :code_name=>:ifspppl_bmag,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["trinity"]},
+     :override_collisionality=>
+      {:should_include=>"true",
+       :description=>nil,
+       :help=>nil,
+       :code_name=>:override_collisionality,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[]},
+     :flux_driver=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:flux_driver,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
@@ -1190,7 +1255,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".false."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :flux_groups=>
       {:should_include=>"true",
        :description=>" The number of processors for each flux calculation",
@@ -1645,7 +1710,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :evolve_temperature=>
       {:should_include=>"true",
        :description=>" if true, evolve temperature profile(s)",
@@ -1656,7 +1721,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :evolve_flow=>
       {:should_include=>"true",
        :description=>" if true, evolve toroidal angular momentum",

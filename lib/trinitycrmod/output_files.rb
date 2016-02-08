@@ -67,10 +67,12 @@ class CodeRunner
 		# 	:rho
 		# 	:rho_cc
 		def list(var)
-			case var
-			when :t
+			case var.to_s
+			when *NetcdfSmartReader.dimensions
 				hash  = {}
-				get_2d_array_float(:nt, /1:\s+time/, /1:\s+time/).map{|arr| arr[0]}.each_with_index{|t,i| hash[i+1] = t}
+				#get_2d_array_float(:nt, /1:\s+time/, /1:\s+time/).map{|arr| arr[0]}.each_with_index{|t,i| hash[i+1] = t}
+        ax = netcdf_smart_reader.axiskit(var.to_s, {})
+        ax.data.to_a.each_with_index{|v,i| hash[i+1] = v}
 				hash
 			end
 		end

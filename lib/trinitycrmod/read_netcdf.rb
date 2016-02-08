@@ -98,6 +98,9 @@ class NetcdfSmartReader
       return -1
     end
   end
+  def self.dimensions
+    ['t','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval']
+  end
 
   def axiskit(variable, options)
     case variable
@@ -108,7 +111,7 @@ class NetcdfSmartReader
   end
   def dimension_variable_name(n)
     case n
-    when 't','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval'
+    when *self.class.dimensions
       n
     else
       raise "Unknown dimension #{n}"
