@@ -99,7 +99,7 @@ class NetcdfSmartReader
     end
   end
   def self.dimensions
-    ['t','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval']
+    ['t','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval', 'cegrid']
   end
 
   def axiskit(variable, options)

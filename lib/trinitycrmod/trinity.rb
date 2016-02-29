@@ -57,6 +57,7 @@ class CodeRunner
       :te95,
       :omega0,
       :omega95,
+      :plasma_volume,
       :wth
     ]
 
@@ -121,6 +122,7 @@ class CodeRunner
       new_run.iternt_file = @run_name + ".iternt"
       new_run.iterflx_file = @run_name + ".iterflx"
       new_run.itercalib_file = @run_name + ".itercalib"
+      new_run.restart_file = @run_name + ".out.nc"
       new_run.init_file = @run_name + ".tmp"
       @runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs
       # This is unnecessary for single restart file.
@@ -136,8 +138,8 @@ class CodeRunner
       new_run.run_name += '_t'
       eputs 'Copying Trinity Restart files', ''
       #system "ls #@directory"
-      ['iternt', 'iterflx', 'tmp', 'itercalib'].each do |ext|
-        next if ext=='itercalib' and not FileTest.exist?("#@directory/#@run_name.#{ext}")
+      ['iternt', 'iterflx', 'tmp', 'itercalib', 'out.nc'].each do |ext|
+        next if ['itercalib', 'out.nc'].include? ext and not FileTest.exist?("#@directory/#@run_name.#{ext}")
         # Unlike gs2, trinity always uses the current run name to generate the
         # restart files. Thus, the name of the restart files changes with every
         # run.
@@ -466,7 +468,7 @@ class CodeRunner
       get_status
       #p ['id is', id, 'ctd is ', ctd]
       if ctd
-        #get_global_results
+        get_global_results rescue nil
       end
       #p ['fusionQ is ', fusionQ]
       @percent_complete = completed_timesteps.to_f / ntstep.to_f * 100.0
@@ -504,17 +506,31 @@ class CodeRunner
 
 
     def get_global_results
-      @fusionQ = info_outfile.get_variable_value('Q').to_f
-      @pfus = info_outfile.get_variable_value(/fusion\s+power/i).to_f
-      @pnet = info_outfile.get_variable_value(/net\s+power/i).to_f
-      @aux_power = info_outfile.get_variable_value(/aux.*\s+power/i).to_f
-      @alpha_power = info_outfile.get_variable_value(/alpha\s+power/i).to_f
-      @rad_power = info_outfile.get_variable_value(/radiated\s+power/i).to_f
-      @ne0 = info_outfile.get_variable_value(/core\s+density|Core\s+electron\s+density/i).to_f
-      @ti0 = info_outfile.get_variable_value(/[Cc]ore\s+T_i/i).to_f
-      @te0 = info_outfile.get_variable_value(/[Cc]ore\s+T_e/i).to_f
-      @omega0 = info_outfile.get_variable_value(/[Cc]ore\s+omega/i).to_f rescue 0.0 # Old info files don't have omega
-      #p 'send(fusionQ)', send(:fusionQ)
+      if FileTest.exist? new_netcdf_filename
+        @plasma_volume = new_netcdf_file.var('plasma_volume').get[-1]
+        @pfus = new_netcdf_file.var('fusion_power').get[-1]
+        @fusionQ = new_netcdf_file.var('fusion_gain').get[-1]
+        @pnet = new_netcdf_file.var('net_power').get[-1]
+        @alpha_power = new_netcdf_file.var('alpha_power_total').get[-1]
+        @aux_power = new_netcdf_file.var('aux_power_total').get[-1]
+        @rad_power = new_netcdf_file.var('radiate_power_total').get[-1]
+        @ne0 = new_netcdf_file.var('ne_core').get[-1]
+        @te0 = new_netcdf_file.var('te_core').get[-1]
+        @ti0 = new_netcdf_file.var('ti_core').get[-1]
+        @omega0 = new_netcdf_file.var('omega_core').get[-1]
+      else
+        # If the netcdf file is missing try the info file
+        @fusionQ = info_outfile.get_variable_value('Q').to_f
+        @pfus = info_outfile.get_variable_value(/fusion\s+power/i).to_f
+        @pnet = info_outfile.get_variable_value(/net\s+power/i).to_f
+        @aux_power = info_outfile.get_variable_value(/aux.*\s+power/i).to_f
+        @alpha_power = info_outfile.get_variable_value(/alpha\s+power/i).to_f
+        @rad_power = info_outfile.get_variable_value(/radiated\s+power/i).to_f
+        @ne0 = info_outfile.get_variable_value(/core\s+density|Core\s+electron\s+density/i).to_f
+        @ti0 = info_outfile.get_variable_value(/[Cc]ore\s+T_i/i).to_f
+        @te0 = info_outfile.get_variable_value(/[Cc]ore\s+T_e/i).to_f
+        @omega0 = info_outfile.get_variable_value(/[Cc]ore\s+omega/i).to_f rescue 0.0 # Old info files don't have omega
+      end 
     end
 
     def self.get_input_help_from_source_code(source_folder)

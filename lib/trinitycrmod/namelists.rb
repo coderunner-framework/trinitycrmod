@@ -1220,6 +1220,18 @@
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
        :autoscanned_defaults=>[0.0]},
+     :restart_file=>
+      {:should_include=>"true",
+       :description=>
+        "Netcdf file with restart data (gradually replacing old restart files).",
+       :help=>
+        "Netcdf file with restart data (gradually replacing old restart files).",
+       :code_name=>:restart_file,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>[""]},
      :iternt_file=>
       {:should_include=>"true",
        :description=>
