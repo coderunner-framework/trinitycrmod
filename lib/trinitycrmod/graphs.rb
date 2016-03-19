@@ -153,23 +153,50 @@ class CodeRunner::Trinity
     def profiles_graphkit(options)
       kit = GraphKit::MultiKit.new(
         [
-          ion_temp_prof_graphkit(options),
-          eln_temp_prof_graphkit(options),
-          dens_prof_graphkit(options),
-          ang_mom_prof_graphkit(options)
+          #ion_temp_prof_graphkit(options),
+          #eln_temp_prof_graphkit(options),
+          #dens_prof_graphkit(options),
+          #ang_mom_prof_graphkit(options)
+          smart_graphkit(options.absorb graphkit_name: 'nc_temp_grid', tspec_index: 2),
+          smart_graphkit(options.absorb graphkit_name: 'nc_temp_grid', tspec_index: 1),
+          smart_graphkit(options.absorb graphkit_name: 'nc_dens_grid', tspec_index: 1),
+          smart_graphkit(options.absorb graphkit_name: 'nc_omega_grid'),
       ]
       )
+      kit.each{|k| k.title = "nil"; k.gp.key = "off"}
+      kit[0].ylabel = "Ion Temp (keV)"
+      kit[1].ylabel = "Electron Temp (keV)"
+      kit[2].ylabel = "Electron Dens (10^20 m^-3)"
+      kit[3].ylabel = "Toroidal Rotation (rad s^-1)"
       kit.each{|k| k.title = nil}
-      if options[:horizontal]
-        kit.slice(0..2).each{|k| k.xlabel = nil; k.gp.xtics = "format ''"}
-        kit[3].gp.xtics = 'format "%2.1f"'
-      else
-        kit.values_at(0,2).each{|k| k.xlabel = nil; k.gp.xtics = "format ''"}
+      #if options[:horizontal]
+        #kit.slice(0..2).each{|k| k.xlabel = nil; k.gp.xtics = "format ''"}
+        #kit[3].gp.xtics = 'format "%2.1f"'
+      #else
+        #kit.values_at(0,2).each{|k| k.xlabel = nil; k.gp.xtics = "format ''"}
         kit.gp.multiplot = "layout 2,2"
-        kit.gp.key = "tmargin"
-      end
+        #kit[1].gp.key = "top"
+        kit[0].xlabel = nil
+        kit[1].xlabel = nil
+      #end
       kit
 
+    end
+    def geometry_graphkit(options)
+      kit = GraphKit::MultiKit.new(
+        [
+          smart_graphkit(options.absorb graphkit_name: 'nc_area_grid'),
+          smart_graphkit(options.absorb graphkit_name: 'nc_qval_grid'),
+          smart_graphkit(options.absorb graphkit_name: 'nc_shat_grid'),
+          smart_graphkit(options.absorb graphkit_name: 'nc_kappa_grid'),
+          smart_graphkit(options.absorb graphkit_name: 'nc_kapprim_grid'),
+          smart_graphkit(options.absorb graphkit_name: 'nc_delta_grid'),
+          smart_graphkit(options.absorb graphkit_name: 'nc_deltprim_grid'),
+        ]
+      )
+      kit.each{|k| k.ylabel.sub!(/\(inout.*/, ''); k.gp.key="off"; k.title=nil}
+      kit.gp.multiplot = "layout 2,4"
+      kit
     end
     def calibration_graphkit(options)
       kit = GraphKit::MultiKit.new(

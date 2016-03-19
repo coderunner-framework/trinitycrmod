@@ -133,6 +133,7 @@ class NetcdfSmartReader
     opts.delete(:graphkit_name)
     #kit.data[0].title += " with options: " + opts.to_s
     kit.data[0].title += " " + opts.to_s.gsub(/_(index|element)/, '')
+    kit.data[0].gp.with = "lp"
     if kit.zlabel
       kit.zlabel = "'#{kit.zlabel}' rotate by 90"
       #kit.zlabel = nil
