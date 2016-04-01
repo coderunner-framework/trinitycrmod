@@ -10,11 +10,15 @@ class CodeRunner
 	class Trinity
 		module TrinityComponent 
 			attr_accessor :trinity_run
-			def initialize(runner, trinity_run)
+			def initialize(runner, trinity_run, trinity_id)
 				super(runner)
 				@trinity_run = trinity_run
+        @trinity_id = trinity_id
 				self
 			end
+      def generate_run_name
+        @run_name = @trinity_run.flux_run_name(@trinity_id)
+      end
 			def output_file
 				#@output_file ||= '../' +  self.class.to_s
 				'../' + @trinity_run.output_file
@@ -25,7 +29,7 @@ class CodeRunner
 				#'aa'
 			end
 			def dup
-				return self.class.new(@runner, @trinity_run).learn_from(self)
+				return self.class.new(@runner, @trinity_run, @trinity_id).learn_from(self)
 			end
 			def save
 				#p ['output_file', output_file]
@@ -83,7 +87,7 @@ end)
 EOF2
     
       }
-			FileUtils.mv(defaults_filename, central_defaults_filename)
+			#FileUtils.mv(defaults_filename, central_defaults_filename)
 			FileUtils.rm(tmp_filename)
 			CodeRunner.fetch_runner(C: rcp.code, m: (rcp.modlet? ? rcp.modlet : nil), D: name)
 

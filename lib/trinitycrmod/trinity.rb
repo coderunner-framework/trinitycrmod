@@ -111,6 +111,12 @@ class CodeRunner
             new_run.flux_runs[i].set(v, run.send(v)) if run.send(v) or new_run.flux_runs[i].send(v)
           }
         end
+      elsif @flux_option == "gryfx"
+        flux_runs.each_with_index do |run, i|
+          CodeRunner::Gryfx.rcp.variables.each{|v|
+            new_run.flux_runs[i].set(v, run.send(v)) if run.send(v) or new_run.flux_runs[i].send(v)
+          }
+        end
       end
       @naming_pars.delete(:preamble)
       SUBMIT_OPTIONS.each{|v| new_run.set(v, self.send(v)) unless new_run.send(v)}
@@ -128,8 +134,6 @@ class CodeRunner
       # This is unnecessary for single restart file.
       warning( "Restart is not on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}... this is only OK if you are using parallel netcdf and single restart files.") if flux_gs2? and not new_run.no_restart_gs2 and (!new_run.nprocs or new_run.nprocs != @nprocs)
       raise "Restart cannot have a different sized jacobian: new is #{new_run.n_flux_tubes_jac} and old is #{n_flux_tubes_jac}" unless new_run.n_flux_tubes_jac == n_flux_tubes_jac
-    #   @runner.parameters.each{|var, value| new_run.set(var,value)} if @runner.parameters
-    #   ep @runner.parameters
       new_run.run_name = nil
       new_run.naming_pars = @naming_pars
       new_run.update_submission_parameters(new_run.parameter_hash.inspect, false) if new_run.parameter_hash
@@ -161,6 +165,16 @@ class CodeRunner
             new_run.flux_runs[i].is_a_restart = false
             new_run.flux_runs[i].restart_id = nil
           end
+        end
+      end
+      if (new_run.flux_gryfx? and flux_gryfx?) and not new_run.no_restart_gs2
+        for i in 0...n_flux_tubes
+          break if i >= new_run.n_flux_tubes
+          next if not FileTest.exist? flux_runs[i].directory + '/' + flux_runs[i].run_name + '.restart.cdf'
+          folder = flux_folder_name(i)
+          new_run.flux_runs[i].directory = new_run.directory + "/#{folder}"
+          FileUtils.makedirs(new_run.flux_runs[i].directory)
+          flux_runs[i].set_restart(new_run.flux_runs[i])
         end
       end
       new_run
@@ -407,7 +421,7 @@ class CodeRunner
           if not component
             #p "HEELO"
             #p [i, '3,', component, '4', @component_runs.size]
-            component = @component_runs[i] =  fclass.new(@runner, self).create_component
+            component = @component_runs[i] =  fclass.new(@runner, self, i).create_component
             #component.instance_variable_set(:@output_file, output_file)
             #p [i, '3,', component, '4', @component_runs.size]
             if false

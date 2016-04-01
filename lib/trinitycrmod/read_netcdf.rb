@@ -73,7 +73,7 @@ class NetcdfSmartReader
   end
   def dim_start(name, options)
     sym = name.to_sym
-    if i=options[sym + :_index]
+    if i=options[sym + :_index] or i = options[sym]
       return i-1
     elsif i=options[sym + :_element]
       return i
@@ -88,7 +88,7 @@ class NetcdfSmartReader
   end
   def dim_end(name, options)
     sym = name.to_sym
-    if i=options[sym + :_index]
+    if i=options[sym + :_index] or i=options[sym]
       return i-1
     elsif i=options[sym + :_element]
       return i
@@ -99,12 +99,12 @@ class NetcdfSmartReader
     end
   end
   def self.dimensions
-    ['t','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval', 'cegrid']
+    ['t','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval', 'cegrid', 'job']
   end
 
   def axiskit(variable, options)
     case variable
-    when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad', 'eval'
+    when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad', 'eval', 'job'
       return GraphKit::AxisKit.autocreate(data: GSL::Vector.linspace(1, sz=@file.dim(variable).length, sz), title: variable)
     end
     GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('units').get, title: @file.var(variable).att('description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, '').sub(/.*rho.*The definition.*/, 'rho'))
@@ -147,6 +147,9 @@ def netcdf_smart_reader
   NetcdfSmartReader.new(new_netcdf_file)
 end
 
+class SmartGraphKitError < StandardError
+end
+
 def smart_graphkit(options)
   case options[:command]
   when :help
@@ -154,7 +157,25 @@ def smart_graphkit(options)
   when :options
     [:nmat_index, :t_index, :tspec_index, :iter_index]
   else
-    netcdf_smart_reader.graphkit(options[:graphkit_name].sub(/^nc_/, ''), options)
+    case options[:graphkit_name]
+    when /_vs_/
+      kits = options[:graphkit_name].sub(/^nc_/, '').split(/_vs_/).map{|n| netcdf_smart_reader.graphkit(n, options)}
+      kit = kits[-1]
+      raise SmartGraphKitError.new("Number of axes does not match number of variables") if kits.size != kit.naxes
+      for i in 0...kit.data.size
+        if kit.naxes > 1
+          kit.data[i].x = kits[0].data[i].y
+        end
+        if kit.naxes > 2
+          kit.data[i].x = kits[0].data[i].z
+          kit.data[i].y = kits[1].data[i].z
+        end
+      end
+      kit.autocreate
+      kit
+    else
+      netcdf_smart_reader.graphkit(options[:graphkit_name].sub(/^nc_/, ''), options)
+    end
   end
 end
 

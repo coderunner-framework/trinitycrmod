@@ -96,13 +96,20 @@ class CodeRunner::Trinity
     def integrate_profkit(kit, area_vectors, t_indices)
       datavecs = kit.data.map{|d| d.y.data}
       #p 'datavecs.size', datavecs.size
-      rhovec = kit.data[0].x.data
-      rhoarea_vectors = get_1d_array_float('geo', /1:\s*rho/)
-      int = GSL::ScatterInterp.alloc(:linear,  [rhoarea_vectors.to_gslv, area_vectors.to_gslv], false )
+      #rhovec = kit.data[0].x.data
+      #rhoarea_vectors = get_1d_array_float('geo', /1:\s*rho/)
+      #int = GSL::ScatterInterp.alloc(:linear,  [rhoarea_vectors.to_gslv, area_vectors.to_gslv], false )
 
-      area2 = rhovec.map{|rh| int.eval(rh)}
-      integrated_values = datavecs.map{|dat| (dat.to_gslv*area2.to_gslv).sum}
-      k2 = GraphKit.quick_create([list(:t).values, integrated_values])
+      #area2 = rhovec.map{|rh| int.eval(rh)}
+      #area_vectors = new_netcdf_file.var('area_grid').get[-1].to_gslv
+      grho_vector= new_netcdf_file.var('grho_grid').get.to_a[-1].to_gslv
+      rho_vector= new_netcdf_file.var('rad_grid').get.to_a[-1][-1].to_gslv
+      integrated_values = datavecs.map{|dat| 
+        p 'dat.size', dat.size, area_vectors.size, grho_vector.size
+        integrand = dat.to_gslv*area_vectors/grho_vector
+        (integrand.subvector(0,dat.size-1) * (rho_vector.subvector(1,dat.size-1) - rho_vector.subvector(0,dat.size-1))).sum
+      }
+      k2 = GraphKit.quick_create([list(:t).values.to_gslv, integrated_values])
       k2.title = kit.title
       k2.ylabel = kit.ylabel
       return k2
@@ -116,7 +123,7 @@ class CodeRunner::Trinity
       #kit.gnuplot
       #area_vectors = t_indices.map{|i| get_2d_array_float('geo', /13:\s*area/, /1.*time/)[i].to_gslv}
       #system "less #@directory/#@run_name.geo"
-      area_vectors = get_1d_array_float('geo', /13:\s*area/)
+      area_vectors = new_netcdf_file.var('area_grid').get.to_a[-1].to_gslv
       kit.each_with_index do |k,ik|
         kit[ik] = integrate_profkit(k, area_vectors, t_indices)
       end
