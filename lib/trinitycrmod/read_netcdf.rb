@@ -93,19 +93,26 @@ class NetcdfSmartReader
     elsif i=options[sym + :_element]
       return i
     elsif i=options[sym + :max]
+      #if sym == :conv
+        #return [i, @file.var('conv_final')
       return i
     else
       return -1
     end
   end
   def self.dimensions
-    ['t','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval', 'cegrid', 'job']
+    ['t','tspec', 'iter', 'rad', 'cc', 'mrow', 'mcol', 'ivar', 'jac', 'grad', 'eval', 'cegrid', 'job', 'conv']
   end
 
   def axiskit(variable, options)
     case variable
-    when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad', 'eval', 'job'
-      return GraphKit::AxisKit.autocreate(data: GSL::Vector.linspace(1, sz=@file.dim(variable).length, sz), title: variable)
+    when 'mrow', 'mcol', 'ivar', 'tspec', 'iter', 'jac', 'grad', 'eval', 'job', 'conv'
+      return GraphKit::AxisKit.autocreate(
+        data: GSL::Vector.linspace(1, 
+          sz=
+            (de=dim_end(variable,options); de<0 ?  de+@file.dim(variable).length : de) - 
+            (ds=dim_start(variable,options); ds<0 ?  ds+@file.dim(variable).length : ds) + 1, 
+          sz), title: variable)
     end
     GraphKit::AxisKit.autocreate(data: read_variable(variable, options), units: @file.var(variable).att('units').get, title: @file.var(variable).att('description').get.sub(/(,|summed|average).*$/, '').sub(/[vV]alues of (the )?/, '').sub(/ coordinate/, '').sub(/.*rho.*The definition.*/, 'rho'))
   end

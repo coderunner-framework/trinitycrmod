@@ -104,20 +104,6 @@ class CodeRunner
     def restart(new_run)
       #new_run = self.dup
       (rcp.variables).each{|v| new_run.set(v, send(v)) if send(v) or new_run.send(v)}
-      if @flux_option == "gs2"
-        flux_runs.each_with_index do |run, i|
-          CodeRunner::Gs2.rcp.variables.each{|v|
-            next if [:ginit_option, :delt_option].include? v and new_run.no_restart_gs2
-            new_run.flux_runs[i].set(v, run.send(v)) if run.send(v) or new_run.flux_runs[i].send(v)
-          }
-        end
-      elsif @flux_option == "gryfx"
-        flux_runs.each_with_index do |run, i|
-          CodeRunner::Gryfx.rcp.variables.each{|v|
-            new_run.flux_runs[i].set(v, run.send(v)) if run.send(v) or new_run.flux_runs[i].send(v)
-          }
-        end
-      end
       @naming_pars.delete(:preamble)
       SUBMIT_OPTIONS.each{|v| new_run.set(v, self.send(v)) unless new_run.send(v)}
       #(rcp.results + rcp.gs2_run_info).each{|result| new_run.set(result, nil)}
@@ -130,16 +116,35 @@ class CodeRunner
       new_run.itercalib_file = @run_name + ".itercalib"
       new_run.restart_file = @run_name + ".out.nc"
       new_run.init_file = @run_name + ".tmp"
-      @runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs
-      # This is unnecessary for single restart file.
-      warning( "Restart is not on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}... this is only OK if you are using parallel netcdf and single restart files.") if flux_gs2? and not new_run.no_restart_gs2 and (!new_run.nprocs or new_run.nprocs != @nprocs)
-      raise "Restart cannot have a different sized jacobian: new is #{new_run.n_flux_tubes_jac} and old is #{n_flux_tubes_jac}" unless new_run.n_flux_tubes_jac == n_flux_tubes_jac
+      new_run.flux_pars = @flux_pars.absorb(new_run.flux_pars) if @flux_pars and new_run.flux_pars
       new_run.run_name = nil
       new_run.naming_pars = @naming_pars
       new_run.update_submission_parameters(new_run.parameter_hash.inspect, false) if new_run.parameter_hash
       new_run.naming_pars.delete(:restart_id)
       new_run.generate_run_name
       new_run.run_name += '_t'
+      if @flux_option == "gs2"
+        flux_runs.each_with_index do |run, i|
+          CodeRunner::Gs2.rcp.variables.each{|v|
+            next if [:ginit_option, :delt_option].include? v and new_run.no_restart_gs2
+            new_run.flux_runs[i].set(v, run.send(v)) if run.send(v) or new_run.flux_runs[i].send(v)
+          }
+        end
+      elsif @flux_option == "gryfx"
+        flux_runs.each_with_index do |run, i|
+          CodeRunner::Gryfx.rcp.variables.each{|v|
+            new_run.flux_runs[i].set(v, run.send(v)) if run.send(v) or new_run.flux_runs[i].send(v)
+          }
+          eputs "parameter_hash_string is " + new_run.flux_runs[i].parameter_hash_string
+          eputs "nwrite is ", new_run.flux_runs[i].nwrite, run.nwrite
+          new_run.flux_runs[i].update_submission_parameters(new_run.flux_runs[i].parameter_hash_string, false)
+          eputs "nwrite 2 is ", new_run.flux_runs[i].nwrite, run.nwrite
+        end
+      end
+      @runner.nprocs = @nprocs if @runner.nprocs == "1" # 1 is the default so this means the user probably didn't specify nprocs
+      # This is unnecessary for single restart file.
+      warning( "Restart is not on the same number of processors as the previous run: new is #{new_run.nprocs.inspect} and old is #{@nprocs.inspect}... this is only OK if you are using parallel netcdf and single restart files.") if flux_gs2? and not new_run.no_restart_gs2 and (!new_run.nprocs or new_run.nprocs != @nprocs)
+      raise "Restart cannot have a different sized jacobian: new is #{new_run.n_flux_tubes_jac} and old is #{n_flux_tubes_jac}" unless new_run.n_flux_tubes_jac == n_flux_tubes_jac
       eputs 'Copying Trinity Restart files', ''
       #system "ls #@directory"
       ['iternt', 'iterflx', 'tmp', 'itercalib', 'out.nc'].each do |ext|
@@ -156,6 +161,7 @@ class CodeRunner
 
           new_run.flux_runs[i].directory = new_run.directory + "/#{folder}"
           FileUtils.makedirs(new_run.flux_runs[i].directory)
+
           flux_runs[i].restart(new_run.flux_runs[i])
           if new_run.neval_calibrate and new_run.neval_calibrate > 0 and 
             new_run.flux_runs[i].nonlinear_mode == "off" 
@@ -171,12 +177,30 @@ class CodeRunner
         for i in 0...n_flux_tubes
           break if i >= new_run.n_flux_tubes
           next if not FileTest.exist? flux_runs[i].directory + '/' + flux_runs[i].run_name + '.restart.cdf'
+          eputs " old new nx #{flux_runs[i].nx} #{new_run.flux_runs[i].nx}"
+          if not (
+            flux_runs[i].nx ==  new_run.flux_runs[i].nx and
+            flux_runs[i].ny ==  new_run.flux_runs[i].ny and
+            flux_runs[i].ngauss ==  new_run.flux_runs[i].ngauss and
+            flux_runs[i].negrid ==  new_run.flux_runs[i].negrid and
+            flux_runs[i].ntheta == new_run.flux_runs[i].ntheta
+          )
+            new_run.flux_runs[i].ginit_option = "noise"
+            new_run.flux_runs[i].delt_option = "default"
+            new_run.flux_runs[i].is_a_restart = false
+            new_run.flux_runs[i].restart_id = nil
+            new_run.flux_runs[i].restart = "off"
+            next
+          end
           folder = flux_folder_name(i)
           new_run.flux_runs[i].directory = new_run.directory + "/#{folder}"
           FileUtils.makedirs(new_run.flux_runs[i].directory)
+          #eputs "nwrite 3 is ", new_run.flux_runs[i].nwrite
           flux_runs[i].set_restart(new_run.flux_runs[i])
+          #eputs "nwrite 4 is ", new_run.flux_runs[i].nwrite
         end
       end
+       #eputs "nwrite 5 is ", new_run.flux_runs[0].nwrite
       new_run
     end
     #  This is a hook which gets called just before submitting a simulation. It sets up the folder and generates any necessary input files.
@@ -190,9 +214,16 @@ class CodeRunner
         elsif uses_chease?
           setup_chease
         end
+        #eputs "nwrite 6 is ", new_run.flux_runs[0].nwrite
+        @avail_cpu_time = (@wall_mins-1.0) * 60 if @wall_mins
+        if flux_gs2? or flux_gryfx?
+          @avail_cpu_time = (@wall_mins-6.0) * 60 if @wall_mins
+        end
         check_parameters
         write_input_file
+        #eputs "nwrite 7 is ", new_run.flux_runs[0].nwrite
         generate_flux_input_files if flux_gs2? or flux_gryfx?
+        #eputs "nwrite 8 is ", new_run.flux_runs[0].nwrite
     end
 
 
@@ -249,15 +280,16 @@ class CodeRunner
     # Override CodeRunner::Run method to deal with flux_pars properly
     # when generating run_name
     def generate_run_name
-        @run_name = %[v#@version] + @naming_pars.inject("") do |str, par|
-          case par
-          when :flux_pars
-            str+="_flx_#{send(par).map{|k,v| "#{k}_#{v.to_s[0..8]}"}.join("_")}}"
-          else
-            str+="_#{par}_#{send(par).to_s[0...8]}"
-          end
+      return super if CodeRunner::GLOBAL_OPTIONS[:short_run_name]
+      @run_name = %[v#@version] + @naming_pars.inject("") do |str, par|
+        case par
+        when :flux_pars
+          str+="_flx_#{send(par).map{|k,v| "#{k}_#{v.to_s[0..8]}"}.join("_")}}"
+        else
+          str+="_#{par}_#{send(par).to_s[0...8]}"
         end
-        @run_name = @run_name.gsub(/\s+/, "_").gsub(/[\/{}"><:=]/, '') + "_id_#@id"
+      end
+      @run_name = @run_name.gsub(/\s+/, "_").gsub(/[\/{}"><:=]/, '') + "_id_#@id"
     end
 
     # The number of separate flux tube results needed for the jacobian
@@ -470,6 +502,20 @@ class CodeRunner
         end
         eputs 'done'
 
+      end
+    end
+
+    def is_converged?
+      Dir.chdir(@directory) do
+        if FileTest.exist?(new_netcdf_filename) and 
+          @convergetol and 
+          new_netcdf_file.var('convergeval') and 
+          new_netcdf_file.dim('t').length > 2 and
+          new_netcdf_file.var('convergeval').get[0,-1] < @convergetol
+          return true
+        else
+          return false
+        end
       end
     end
 

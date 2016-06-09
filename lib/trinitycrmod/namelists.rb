@@ -579,7 +579,38 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[-1.0]}}},
+       :autoscanned_defaults=>[-1.0]},
+     :flux_reset=>
+      {:should_include=>"true",
+       :description=>"If true, recalc fluxes when restarting timestep.",
+       :help=>"If true, recalc fluxes when restarting timestep.",
+       :code_name=>:flux_reset,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :deltadj=>
+      {:should_include=>"true",
+       :description=>
+        "Factor by which to decrease the timestep when redoing step.",
+       :help=>"Factor by which to decrease the timestep when redoing step.",
+       :code_name=>:deltadj,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :avail_cpu_time=>
+      {:should_include=>"true",
+       :description=>"Available wall clock time in s.",
+       :help=>"Available wall clock time in s.",
+       :code_name=>:avail_cpu_time,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :fluxes=>
   {:description=>"",
    :should_include=>"true",
@@ -794,7 +825,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[2, 2.0]},
+       :autoscanned_defaults=>[2.0]},
      :ddens=>
       {:should_include=>"true",
        :description=>" step size for density is -density * ddens",
@@ -1041,15 +1072,17 @@
        :autoscanned_defaults=>[-1]},
      :flux_driver=>
       {:should_include=>"true",
-       :description=>" If true, run flux simulations for the cell centres then quit ",
-       :help=>" If true, run flux simulations for the cell centres then quit",
+       :description=>
+        " If true, quit after get fluxes (i.e. use Trinity as driver for the flux calc)",
+       :help=>
+        " If true, quit after get fluxes (i.e. use Trinity as driver for the flux calc)",
        :code_name=>:flux_driver,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false."]},
      :ifspppl_bmag=>
       {:should_include=>"true",
        :description=>
@@ -1073,16 +1106,25 @@
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
        :autoscanned_defaults=>[]},
-     :flux_driver=>
+     :flux_convergetol=>
       {:should_include=>"true",
        :description=>"",
        :help=>"",
-       :code_name=>:flux_driver,
+       :code_name=>:flux_convergetol,
        :must_pass=>
-        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+        [{:test=>"kind_of? Numeric",
           :explanation=>
-           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool}}},
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float},
+     :dprim_option=>
+      {:should_include=>"true",
+       :description=>"",
+       :help=>"",
+       :code_name=>:dprim_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
@@ -1106,7 +1148,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["geo_file"]},
+       :autoscanned_defaults=>["geo_file", "trim(init_file_temp)"]},
      :init_time=>
       {:should_include=>"true",
        :description=>" target time to sample experimental data (in seconds)",
@@ -1223,15 +1265,15 @@
      :restart_file=>
       {:should_include=>"true",
        :description=>
-        "Netcdf file with restart data (gradually replacing old restart files).",
+        " name of the new netcdf restart file, set to 'old' for old restart",
        :help=>
-        "Netcdf file with restart data (gradually replacing old restart files).",
+        " name of the new netcdf restart file, set to 'old' for old restart",
        :code_name=>:restart_file,
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>[""]},
+       :autoscanned_defaults=>["old"]},
      :iternt_file=>
       {:should_include=>"true",
        :description=>
@@ -1361,14 +1403,17 @@
        :autoscanned_defaults=>[-1.0]},
      :density_boost=>
       {:should_include=>"true",
-       :description=>"Increase initial density at constant pressure.",
-       :help=>"Increase initial density at constant pressure.",
+       :description=>
+        " If >0 then multiplies initial dens and divides initial temp (init_option_chease only)",
+       :help=>
+        " If >0 then multiplies initial dens and divides initial temp (init_option_chease only)",
        :code_name=>:density_boost,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}},
+       :type=>:Float,
+       :autoscanned_defaults=>[-1.0]}}},
  :sources=>
   {:description=>"",
    :should_include=>"true",
@@ -1667,7 +1712,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :temp_equil=>
       {:should_include=>"true",
        :description=>" set to false to neglect temperature equilibration",
@@ -1678,7 +1723,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :turb_heat=>
       {:should_include=>"true",
        :description=>" set to false to neglect turbulent heating",
@@ -1689,7 +1734,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false.", ".true."]},
      :numult=>
       {:should_include=>"true",
        :description=>" multiplier of collision frequency for testing",
