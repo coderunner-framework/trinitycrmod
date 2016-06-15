@@ -582,35 +582,38 @@
        :autoscanned_defaults=>[-1.0]},
      :flux_reset=>
       {:should_include=>"true",
-       :description=>"If true, recalc fluxes when restarting timestep.",
-       :help=>"If true, recalc fluxes when restarting timestep.",
+       :description=>
+        " If redoing a timestep, recalculate fluxes for 1st iteration",
+       :help=>" If redoing a timestep, recalculate fluxes for 1st iteration",
        :code_name=>:flux_reset,
        :must_pass=>
         [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
-       :type=>:Fortran_Bool},
+       :type=>:Fortran_Bool,
+       :autoscanned_defaults=>[".true."]},
      :deltadj=>
       {:should_include=>"true",
-       :description=>
-        "Factor by which to decrease the timestep when redoing step.",
-       :help=>"Factor by which to decrease the timestep when redoing step.",
+       :description=>" If the iteration fails, reduce timestep by deltadj",
+       :help=>" If the iteration fails, reduce timestep by deltadj",
        :code_name=>:deltadj,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>[4.0]},
      :avail_cpu_time=>
       {:should_include=>"true",
-       :description=>"Available wall clock time in s.",
-       :help=>"Available wall clock time in s.",
+       :description=>" Number of seconds of wall clock time available",
+       :help=>" Number of seconds of wall clock time available",
        :code_name=>:avail_cpu_time,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float}}},
+       :type=>:Float,
+       :autoscanned_defaults=>[]}}},
  :fluxes=>
   {:description=>"",
    :should_include=>"true",
@@ -1108,23 +1111,40 @@
        :autoscanned_defaults=>[]},
      :flux_convergetol=>
       {:should_include=>"true",
-       :description=>"",
-       :help=>"",
+       :description=>
+        " If flux_convergetol > 0, for nonlinear flux models repeatedly call get_fluxes until all radii are converged within flux_convergetol. Do not set too low as fluxes are noisy",
+       :help=>
+        " If flux_convergetol > 0, for nonlinear flux models repeatedly call get_fluxes until all radii are converged within flux_convergetol. Do not set too low as fluxes are noisy",
        :code_name=>:flux_convergetol,
        :must_pass=>
         [{:test=>"kind_of? Numeric",
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
-       :type=>:Float},
+       :type=>:Float,
+       :autoscanned_defaults=>[0.5]},
      :dprim_option=>
       {:should_include=>"true",
-       :description=>"",
-       :help=>"",
+       :description=>
+        " How is the delta gradient calculated.  'constant', 'proportional', 'propabs'",
+       :help=>
+        " How is the delta gradient calculated.  'constant', 'proportional', 'propabs'",
        :code_name=>:dprim_option,
        :must_pass=>
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
-       :type=>:String}}},
+       :type=>:String,
+       :autoscanned_defaults=>["constant"]},
+     :damping=>
+      {:should_include=>"true",
+       :description=>" If > 0 damp grid scale oscillations in the profiles",
+       :help=>" If > 0 damp grid scale oscillations in the profiles",
+       :code_name=>:damping,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float,
+       :autoscanned_defaults=>[1.0]}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
