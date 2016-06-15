@@ -1144,7 +1144,17 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]}}},
+       :autoscanned_defaults=>[1.0]},
+     :neo_option=>
+      {:should_include=>"true",
+       :description=>" Choice for neoclassical fluxes: 'analytic', 'neo'",
+       :help=>" Choice for neoclassical fluxes: 'analytic', 'neo'",
+       :code_name=>:neo_option,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String,
+       :autoscanned_defaults=>["analytic"]}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
