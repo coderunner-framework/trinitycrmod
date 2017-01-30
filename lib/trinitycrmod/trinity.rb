@@ -277,6 +277,25 @@ class CodeRunner
       self
     end
 
+
+    def confinement_time
+      area = new_netcdf_file.var('area_grid').get('start' => [0,0], 'end'=> [-1,0])[true,0].to_a.to_gslv
+      grho = new_netcdf_file.var('grho_grid').get('start' => [0,0], 'end'=> [-1,0])[true,0].to_a.to_gslv
+      pressure = new_netcdf_file.var('pres_grid').get('start' => [0,0,0,-1], 'end' => [-1,-1,0,-1])[true,true,0,0].to_a
+      #pressure = pressure.map{|arr| arr.to_gslv}.sum
+      rad_in = @rad_out/(2.0*@nrad.to_f-1) 
+      drad = (@rad_out - rad_in) / (@nrad.to_f - 1)
+      if @evolve_temperature.fortran_true? 
+        if @te_equal_ti.fortran_true?
+          if @equal_ion_temps.fortran_true?
+            stored_energy = area.subvector(@nrad-1)*pressure[1].to_gslv.subvector(@nrad-1)*grho.subvector(@nrad-1)*drad
+            stored_energy = stored_energy.sum*1e3*1.6e-19*1e20
+            power = @i_powerin_1*1e6
+            return stored_energy/power
+          end
+        end
+      end
+    end
     # Override CodeRunner::Run method to deal with flux_pars properly
     # when generating run_name
     def generate_run_name
