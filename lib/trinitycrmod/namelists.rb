@@ -591,7 +591,7 @@
           :explanation=>
            "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
        :type=>:Fortran_Bool,
-       :autoscanned_defaults=>[".true."]},
+       :autoscanned_defaults=>[".false."]},
      :deltadj=>
       {:should_include=>"true",
        :description=>" If the iteration fails, reduce timestep by deltadj",
@@ -602,7 +602,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[4.0]},
+       :autoscanned_defaults=>[2.0]},
      :avail_cpu_time=>
       {:should_include=>"true",
        :description=>" Number of seconds of wall clock time available",
@@ -1133,7 +1133,7 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["constant"]},
+       :autoscanned_defaults=>["proportional"]},
      :damping=>
       {:should_include=>"true",
        :description=>" If > 0 damp grid scale oscillations in the profiles",
@@ -1144,7 +1144,7 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]},
+       :autoscanned_defaults=>[0.0]},
      :neo_option=>
       {:should_include=>"true",
        :description=>" Choice for neoclassical fluxes: 'analytic', 'neo'",
@@ -1154,7 +1154,18 @@
         [{:test=>"kind_of? String",
           :explanation=>"This variable must be a string."}],
        :type=>:String,
-       :autoscanned_defaults=>["analytic"]}}},
+       :autoscanned_defaults=>["analytic"]},
+     :flux_match_switches=>
+      {:should_include=>"true",
+       :description=>
+        " String of flux matching choices. Each letter controls a species (electrons on the left). n = none, d = density, t = temperature, a = all",
+       :help=>
+        " String of flux matching choices. Each letter controls a species (electrons on the left). n = none, d = density, t = temperature, a = all",
+       :code_name=>:flux_match_switches,
+       :must_pass=>
+        [{:test=>"kind_of? String",
+          :explanation=>"This variable must be a string."}],
+       :type=>:String}}},
  :init=>
   {:description=>"",
    :should_include=>"true",
@@ -1443,7 +1454,19 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[-1.0]}}},
+       :autoscanned_defaults=>[-1.0]},
+     :evolve_boundary=>
+      {:should_include=>"true",
+       :description=>
+        " set to true to use time-dependent boundary density, temperature, etc.",
+       :help=>
+        " set to true to use time-dependent boundary density, temperature, etc.",
+       :code_name=>:evolve_boundary,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool}}},
  :sources=>
   {:description=>"",
    :should_include=>"true",
@@ -1725,7 +1748,38 @@
           :explanation=>
            "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
        :type=>:Float,
-       :autoscanned_defaults=>[1.0]}}},
+       :autoscanned_defaults=>[1.0]},
+     :evolve_sources=>
+      {:should_include=>"true",
+       :description=>" include time-dependent sources",
+       :help=>" include time-dependent sources",
+       :code_name=>:evolve_sources,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :adjust_beam_modulation=>
+      {:should_include=>"true",
+       :description=>
+        " allows for artifical modification of neutral beam modulation",
+       :help=>" allows for artifical modification of neutral beam modulation",
+       :code_name=>:adjust_beam_modulation,
+       :must_pass=>
+        [{:test=>"kind_of? String and FORTRAN_BOOLS.include? self",
+          :explanation=>
+           "This variable must be a fortran boolean. (In Ruby this is represented as a string: e.g. '.true.')"}],
+       :type=>:Fortran_Bool},
+     :modulation_factor=>
+      {:should_include=>"true",
+       :description=>" factor by which to multiply beam modulation amplitude",
+       :help=>" factor by which to multiply beam modulation amplitude",
+       :code_name=>:modulation_factor,
+       :must_pass=>
+        [{:test=>"kind_of? Numeric",
+          :explanation=>
+           "This variable must be a floating point number (an integer is also acceptable: it will be converted into a floating point number)."}],
+       :type=>:Float}}},
  :physics=>
   {:description=>"",
    :should_include=>"true",
