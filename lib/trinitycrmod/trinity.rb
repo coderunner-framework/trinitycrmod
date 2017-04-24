@@ -208,6 +208,8 @@ class CodeRunner
         @run_name += "_t"
         if @restart_id
           @runner.run_list[@restart_id].restart(self)
+        else
+          make_initial_profiles if self.respond_to?(:make_initial_profiles) 
         end
         if uses_ecom?
           setup_ecom
